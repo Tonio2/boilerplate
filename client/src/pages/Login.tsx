@@ -24,8 +24,7 @@ const Login = () => {
         setIsLoading(true);
         try {
             const { data } = await API.post("/auth/login", { email, password });
-            login();
-            localStorage.setItem("token", data.accessToken);
+            login(data.user, data.accessToken);
             showToast("Login successful!", "success");
         } catch (error) {
             console.error("Login failed", error);

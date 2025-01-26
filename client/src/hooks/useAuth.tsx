@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { User } from "../interfaces";
 
 interface AuthContextType {
-    user: boolean;
-    login: () => void;
+    user: User | null;
+    login: (user: User, token: string) => void;
     logout: () => void;
 };
 
@@ -14,19 +15,25 @@ const AuthContext = createContext<AuthContextType | null>(null);
 - Managing local storage
 */
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<boolean>(false);
+    const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
+        const user = localStorage.getItem("user");
 
-        const user = localStorage.getItem("token");
         if (user) {
-            setUser(true);
+            setUser(JSON.parse(user));
         }
     }, []);
 
-    const login = () => setUser(true);
+    const login = (user: User, token: string) => {
+        setUser(user);
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("token", token);
+    };
+
     const logout = () => {
-        setUser(false);
+        setUser(null);
+        localStorage.removeItem("user");
         localStorage.removeItem("token");
     };
 
