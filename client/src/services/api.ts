@@ -40,8 +40,7 @@ API.interceptors.response.use(
     },
     async (error) => {
         const originalRequest = error.config;
-        // TODO: Handle 404 errors when there is no status in the response
-        if (error.response.status === 401 && !originalRequest._retry) {
+        if (error.response && error.response.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
             if (isRefreshing) {
                 return new Promise((resolve) => {

@@ -9,7 +9,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-//TODO: Store user in local storage
 /* In charge of:
 - Managing user state
 - Managing local storage
