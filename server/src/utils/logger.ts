@@ -1,7 +1,5 @@
 import winston from 'winston';
 
-// TODO: Fix logger
-
 const logger = winston.createLogger({
   level: 'info',
   format: winston.format.combine(

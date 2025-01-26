@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import Joi from 'joi';
 import logger from './utils/logger';
+import debugLogger from './utils/debugLogger';
 import authRoutes from './routes/auth';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -48,7 +49,10 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(debugLogger);
 app.use(generalLimiter);
+
+
 
 // Routes
 app.use('/api/v1/auth', authLimiter, authRoutes);
