@@ -11,8 +11,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 //TODO: Store user in local storage
 /* In charge of:
 - Managing user state
-- Managing user state in local storage
-- Managing access token in local storage
+- Managing local storage
 */
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<boolean>(false);
@@ -26,7 +25,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     const login = () => setUser(true);
-    const logout = () => setUser(false);
+    const logout = () => {
+        setUser(false);
+        localStorage.removeItem("token");
+    };
 
     return (
         <AuthContext.Provider value={{ user, login, logout }}>

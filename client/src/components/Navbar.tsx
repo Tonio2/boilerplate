@@ -2,15 +2,20 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import API from "services/api";
+import { showToast } from "services/toast";
 
-// TODO: Move localStorage.removeItem("token") to useAuth hook
+
 const Navbar = () => {
     const { user, logout } = useAuth();
 
     const handleLogout = async () => {
-        await API.delete("/auth/logout");
-        logout();
-        localStorage.removeItem("token");
+        try {
+            await API.delete("/auth/logout");
+            logout();
+            showToast("Logout successful", "success");
+        } catch (error) {
+            showToast("Logout failed", "error");
+        }
     }
 
     return (
