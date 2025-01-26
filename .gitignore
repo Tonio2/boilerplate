@@ -1,0 +1,12 @@
+# Server
+server/dist/
+server/node_modules/
+server/.env
+server/error.log
+
+# Client
+client/node_modules/
+
+# Personal
+doc/
+
