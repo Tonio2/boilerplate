@@ -231,6 +231,8 @@ export const resetPassword = async (req: Request, res: Response) => {
     user.passwordResetExpires = undefined;
     await user.save();
 
+    await RefreshToken.deleteMany({ userId: user._id });
+
     res.status(200).json({ message: 'Password reset successfully' });
 
 };
