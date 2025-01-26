@@ -235,7 +235,6 @@ export const resetPassword = async (req: Request, res: Response) => {
 
 };
 
-//TODO: try catch only for decoded
 export const verifyEmail = async (req: Request, res: Response) => {
     const { token } = req.body;
 
