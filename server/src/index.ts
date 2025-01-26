@@ -56,6 +56,9 @@ app.use(generalLimiter);
 
 // Routes
 app.use('/api/v1/auth', authLimiter, authRoutes);
+app.use('/api/v1', (req, res) => {
+    res.send('ok');
+});
 
 // Error Handling Middleware
 app.use(errorHandler);
