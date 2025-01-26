@@ -103,10 +103,13 @@ export const login = async (req: Request, res: Response) => {
 
 };
 
-//TODO: clear all refresh tokens
-export const logout = (req: Request, res: Response) => {
+export const logout = async (req: Request, res: Response) => {
+    const refreshToken = req.cookies.refreshToken;
+    if (refreshToken) {
+        const hashedRefreshToken = crypto.createHash('sha256').update(refreshToken).digest('hex');
+        await RefreshToken.deleteOne({ token: hashedRefreshToken });
+    }
     res.clearCookie('refreshToken');
-    //TODO: delete refresh token ?
     res.json({ message: 'Logged out successfully' });
 };
 
@@ -149,86 +152,86 @@ export const refresh = async (req: Request, res: Response) => {
 };
 
 export const me = async (req: any, res: Response) => {
-        const user = await User.findById(req.user.userId);
-        if (!user) {
-            res.status(404).json({ message: 'User not found' });
-            return;
-        }
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+        res.status(404).json({ message: 'User not found' });
+        return;
+    }
 
-        res.json({ user: { id: user.id, email: user.email, role: user.role } });
+    res.json({ user: { id: user.id, email: user.email, role: user.role } });
 
 };
 
 export const forgotPassword = async (req: Request, res: Response) => {
-        const schema = Joi.object({
-            email: Joi.string().email().required()
-        });
-        const { error } = schema.validate(req.body);
-        if (error) {
-            res.status(400).json({ message: error.details[0].message });
-            return;
-        }
+    const schema = Joi.object({
+        email: Joi.string().email().required()
+    });
+    const { error } = schema.validate(req.body);
+    if (error) {
+        res.status(400).json({ message: error.details[0].message });
+        return;
+    }
 
-        const { email } = req.body;
+    const { email } = req.body;
 
-        const user = await User.findOne({ email });
-        if (!user) {
-            res.status(404).json({ message: 'No user found with this email' });
-            return;
-        }
+    const user = await User.findOne({ email });
+    if (!user) {
+        res.status(404).json({ message: 'No user found with this email' });
+        return;
+    }
 
-        const resetToken = crypto.randomBytes(32).toString('hex');
-        const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
 
-        user.passwordResetToken = resetTokenHash;
-        user.passwordResetExpires = Date.now() + 15 * 60 * 1000; // Token valid for 15 minutes
-        await user.save();
+    user.passwordResetToken = resetTokenHash;
+    user.passwordResetExpires = Date.now() + 15 * 60 * 1000; // Token valid for 15 minutes
+    await user.save();
 
-        const resetURL = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    const resetURL = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
-        await sendEmail(
-            user.email,
-            'Password Reset Request',
-            `<p>You requested to reset your password. Click the link below to reset it:</p>
+    await sendEmail(
+        user.email,
+        'Password Reset Request',
+        `<p>You requested to reset your password. Click the link below to reset it:</p>
                <a href="${resetURL}">${resetURL}</a>`,
-        );
+    );
 
-        res.status(200).json({ message: 'Password reset link sent to your email' });
+    res.status(200).json({ message: 'Password reset link sent to your email' });
 
 };
 
 export const resetPassword = async (req: Request, res: Response) => {
-        const schema = Joi.object({
-            password: passwordPattern.required(),
-            token: Joi.string().required()
-        });
+    const schema = Joi.object({
+        password: passwordPattern.required(),
+        token: Joi.string().required()
+    });
 
-        const { error } = schema.validate(req.body);
-        if (error) {
-            res.status(400).json({ message: error.details[0].message });
-            return;
-        }
+    const { error } = schema.validate(req.body);
+    if (error) {
+        res.status(400).json({ message: error.details[0].message });
+        return;
+    }
 
-        const { password, token } = req.body;
+    const { password, token } = req.body;
 
-        const resetTokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const resetTokenHash = crypto.createHash('sha256').update(token).digest('hex');
 
-        const user = await User.findOne({
-            passwordResetToken: resetTokenHash,
-            passwordResetExpires: { $gt: Date.now() },
-        });
+    const user = await User.findOne({
+        passwordResetToken: resetTokenHash,
+        passwordResetExpires: { $gt: Date.now() },
+    });
 
-        if (!user) {
-            res.status(400).json({ message: 'Invalid or expired token' });
-            return;
-        }
+    if (!user) {
+        res.status(400).json({ message: 'Invalid or expired token' });
+        return;
+    }
 
-        user.password = await bcrypt.hash(password, 10);
-        user.passwordResetToken = undefined;
-        user.passwordResetExpires = undefined;
-        await user.save();
+    user.password = await bcrypt.hash(password, 10);
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
 
-        res.status(200).json({ message: 'Password reset successfully' });
+    res.status(200).json({ message: 'Password reset successfully' });
 
 };
 
@@ -260,37 +263,37 @@ export const verifyEmail = async (req: Request, res: Response) => {
 };
 
 export const resendVerificationEmail = async (req: Request, res: Response) => {
-        const schema = Joi.object({
-            email: Joi.string().email().required()
-        });
-        const { error } = schema.validate(req.body);
-        if (error) {
-            res.status(400).json({ message: error.details[0].message });
-            return;
-        }
+    const schema = Joi.object({
+        email: Joi.string().email().required()
+    });
+    const { error } = schema.validate(req.body);
+    if (error) {
+        res.status(400).json({ message: error.details[0].message });
+        return;
+    }
 
-        const { email } = req.body;
-        const user = await User.findOne({ email });
+    const { email } = req.body;
+    const user = await User.findOne({ email });
 
-        if (!user) {
-            res.status(404).json({ message: 'User not found' });
-            return;
-        }
+    if (!user) {
+        res.status(404).json({ message: 'User not found' });
+        return;
+    }
 
-        if (user.isEmailVerified) {
-            res.status(400).json({ message: 'Email already verified' });
-            return;
-        }
+    if (user.isEmailVerified) {
+        res.status(400).json({ message: 'Email already verified' });
+        return;
+    }
 
-        const token = jwt.sign({ userId: user.id }, process.env.JWT_EMAIL_SECRET!, { expiresIn: '1h' });
-        const verificationURL = `${process.env.CLIENT_URL}/verify-email/${token}`;
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_EMAIL_SECRET!, { expiresIn: '1h' });
+    const verificationURL = `${process.env.CLIENT_URL}/verify-email/${token}`;
 
-        await sendEmail(
-            user.email,
-            'Email Verification',
-            `<p>Verify your email by clicking <a href="${verificationURL}">here</a>.</p>`,
-        );
+    await sendEmail(
+        user.email,
+        'Email Verification',
+        `<p>Verify your email by clicking <a href="${verificationURL}">here</a>.</p>`,
+    );
 
-        res.status(200).json({ message: 'Verification email resent' });
+    res.status(200).json({ message: 'Verification email resent' });
 
 };
