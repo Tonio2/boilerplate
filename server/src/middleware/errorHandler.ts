@@ -6,8 +6,6 @@ interface CustomError extends Error {
   status?: number;
 }
 
-// TODO: Fix the error handler to send sanitized error messages
-
 export const errorHandler = (
   err: CustomError,
   req: Request,
@@ -30,6 +28,6 @@ export const errorHandler = (
   // Send error response
   res.status(status).json({
     success: false,
-    message,
+    status: status !== 500 ? message : 'Internal Server Error',
   });
 };
