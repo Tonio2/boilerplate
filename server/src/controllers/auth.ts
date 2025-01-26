@@ -239,27 +239,31 @@ export const resetPassword = async (req: Request, res: Response) => {
 export const verifyEmail = async (req: Request, res: Response) => {
     const { token } = req.body;
 
+    let user;
+
     try {
         const decoded = jwt.verify(token, process.env.JWT_EMAIL_SECRET!) as any;
-        const user = await User.findById(decoded.userId);
-
-        if (!user) {
-            res.status(404).json({ message: 'User not found' });
-            return;
-        }
-
-        if (user.isEmailVerified) {
-            res.status(400).json({ message: 'Email already verified' });
-            return;
-        }
-
-        user.isEmailVerified = true;
-        await user.save();
-
-        res.status(200).json({ message: 'Email verified successfully' });
+        user = await User.findById(decoded.userId);
     } catch (error) {
         res.status(400).json({ message: 'Invalid or expired token' });
+        return;
     }
+
+    if (!user) {
+        res.status(404).json({ message: 'User not found' });
+        return;
+    }
+
+    if (user.isEmailVerified) {
+        res.status(400).json({ message: 'Email already verified' });
+        return;
+    }
+
+    user.isEmailVerified = true;
+    await user.save();
+
+    res.status(200).json({ message: 'Email verified successfully' });
+
 };
 
 export const resendVerificationEmail = async (req: Request, res: Response) => {
