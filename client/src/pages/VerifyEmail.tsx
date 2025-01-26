@@ -1,28 +1,28 @@
 import React, { useState, useEffect } from "react";
 import API from "../services/api";
+import { showToast } from "services/toast";
 
 interface VerifyEmailResponse {
     message: string;
 }
 
 const VerifyEmail = () => {
-    const [message, setMessage] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
         const verifyEmail = async () => {
             const token = window.location.pathname.split("/").pop();
             if (!token) {
-                setMessage("Invalid verification link.");
+                showToast("Invalid verification link.", "error");
                 return;
             }
 
             setLoading(true);
             try {
                 const { data } = await API.post<VerifyEmailResponse>("/auth/verify-email", { token });
-                setMessage(data.message);
+                showToast(data.message, "success");
             } catch (error: any) {
-                setMessage(error.response?.data?.message || "Email verification failed.");
+                showToast(error.response?.data?.message || "Email verification failed.", "error");
             } finally {
                 setLoading(false);
             }
@@ -34,11 +34,7 @@ const VerifyEmail = () => {
     return (
         <div className="max-w-md mx-auto p-4 space-y-6">
             <h1 className="text-2xl font-bold text-center">Verify Email</h1>
-            {loading ? (
-                <div className="text-center">Verifying...</div>
-            ) : (
-                message && <div className="text-center">{message}</div>
-            )}
+            {loading && (<div className="text-center">Verifying...</div>)}
         </div>
     );
 };

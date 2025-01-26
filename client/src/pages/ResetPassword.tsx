@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
+import { showToast } from "../services/toast";
 
 const ResetPassword = () => {
     const navigate = useNavigate();
@@ -8,7 +9,6 @@ const ResetPassword = () => {
         password: "",
         confirmPassword: "",
     });
-    const [errors, setErrors] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const validatePassword = (password: string) => {
@@ -44,12 +44,12 @@ const ResetPassword = () => {
         // Password validation
         const passwordError = validatePassword(formData.password);
         if (passwordError) {
-            setErrors(passwordError);
+            showToast(passwordError, "error");
             return;
         }
 
         if (formData.password !== formData.confirmPassword) {
-            setErrors("Passwords do not match.");
+            showToast("Passwords do not match.", "error");
             return;
         }
 
@@ -61,9 +61,10 @@ const ResetPassword = () => {
             navigate("/login");
         } catch (error: any) {
             console.error("Reset password failed:", error);
-            setErrors(
+            showToast(
                 error.response?.data?.message ||
-                "Failed to reset password. Please try again."
+                "Failed to reset password. Please try again.",
+                "error"
             );
         } finally {
             setIsLoading(false);
@@ -73,11 +74,6 @@ const ResetPassword = () => {
     return (
         <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
             <h1 className="text-2xl font-bold text-center mb-6">Reset Password</h1>
-            {errors && (
-                <div className="text-red-500 bg-red-50 p-2 rounded-md mb-4">
-                    {errors}
-                </div>
-            )}
             <form onSubmit={handleSubmit} className="space-y-4" aria-label="Reset Password Form">
                 <div>
                     <label htmlFor="password" className="block font-medium mb-1">
