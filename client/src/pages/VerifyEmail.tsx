@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import API from "../services/api";
-import { showToast } from "services/toast";
+import { showToast } from "../services/toast";
 
 interface VerifyEmailResponse {
     message: string;

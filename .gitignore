@@ -7,6 +7,7 @@ server/error.log
 # Client
 client/node_modules/
 client/.env
+client/dist/
 
 # Personal
 TODO

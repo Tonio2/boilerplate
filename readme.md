@@ -69,3 +69,19 @@ npm run dev
 cd client
 npm start
 ```
+
+## Push to prod
+
+1. Update server/.env
+
+```sh
+env=production
+```
+
+2. Start the app from server
+
+```bash
+npm run dev
+```
+
+Your app is accessible at `http://localhost:500` and the api ar `http://localhost:5000/api`

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-    baseURL: process.env.REACT_APP_API_BASE_URL || "http://localhost:3001/v1",
+    baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3001/v1",
     withCredentials: true, // Include cookies (for refreshToken)
 });
 
@@ -75,7 +75,7 @@ API.interceptors.response.use(
                 TokenService.removeToken();
                 isRefreshing = false;
 
-                // wait for 15 seconds 
+                // wait for 15 seconds
                 await new Promise((resolve) => setTimeout(resolve, 25000));
                 window.location.href = "/login";
             }

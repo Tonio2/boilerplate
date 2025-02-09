@@ -1,8 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import API from "services/api";
-import { showToast } from "services/toast";
+import API from "../services/api";
+import { showToast } from "../services/toast";
 
 
 const Navbar = () => {
