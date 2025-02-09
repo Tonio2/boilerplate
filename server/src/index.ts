@@ -10,6 +10,7 @@ import logger from './utils/logger';
 import debugLogger from './utils/debugLogger';
 import authRoutes from './routes/auth';
 import { errorHandler } from './middleware/errorHandler';
+import path from 'path';
 
 dotenv.config();
 
@@ -29,6 +30,14 @@ if (error) {
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+if (process.env.NODE_ENV === "production") {
+	console.log("Production Mode");
+	app.use(express.static(path.join(__dirname, "../../client/dist")));
+	app.get("*", (req, res) => {
+	  res.sendFile(path.join(__dirname, "../../client/dist/index.html"));
+	});
+  }
 
 // Rate Limiter Configurations
 const generalLimiter = rateLimit({

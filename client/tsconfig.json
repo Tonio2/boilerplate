@@ -2,7 +2,7 @@
     "compilerOptions": {
         "incremental": true,
         "outDir": "build/lib",
-        "target": "es5",
+        "target": "esnext",
         "module": "esnext",
         "lib": [
             "DOM",
@@ -25,7 +25,10 @@
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
         "experimentalDecorators": true,
-        "types": ["@types/testing-library__dom", "@types/testing-library__react", "node"],
+        "types": ["node", "vite/client"],
+		"isolatedModules": true,
+		"useDefineForClassFields": true,
+		"skipLibCheck": true,
     },
     "include": [
         "src/**/*"
