@@ -4,34 +4,18 @@ import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
-import dotenv from 'dotenv';
-import Joi from 'joi';
+
 import logger from './utils/logger';
 import debugLogger from './utils/debugLogger';
 import authRoutes from './routes/auth';
 import { errorHandler } from './middleware/errorHandler';
 import path from 'path';
 
-dotenv.config();
-
-// Environment Variable Validation
-const envSchema = Joi.object({
-    CLIENT_URL: Joi.string().uri().required(),
-    PORT: Joi.number().default(5000),
-    MONGO_URI: Joi.string().uri().required(),
-    JWT_ACCESS_SECRET: Joi.string().required(),
-    JWT_REFRESH_SECRET: Joi.string().required(),
-}).unknown();
-
-const { error } = envSchema.validate(process.env);
-if (error) {
-    throw new Error(`Environment validation error: ${error.message}`);
-}
+import env from './env'
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-if (process.env.NODE_ENV === "production") {
+if (env.NODE_ENV === "production") {
 	console.log("Production Mode");
 	app.use(express.static(path.join(__dirname, "../../client/dist")));
 	app.get("*", (req, res) => {
@@ -53,7 +37,7 @@ const authLimiter = rateLimit({
 // Middleware
 app.use(helmet());
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: env.CLIENT_URL,
     credentials: true
 }));
 app.use(express.json());
@@ -75,7 +59,7 @@ app.use(errorHandler);
 // Mongoose Connection
 const connectToDatabase = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI!);
+        await mongoose.connect(env.MONGO_URI);
         logger.info('Connected to MongoDB');
     } catch (err) {
         logger.error('Error connecting to MongoDB:', err);
@@ -86,8 +70,8 @@ const connectToDatabase = async () => {
 // Start Server
 const startServer = async () => {
     await connectToDatabase(); // Ensure the database is connected before starting the server
-    const server = app.listen(PORT, () => {
-        logger.info(`Server running on port ${PORT}`);
+    const server = app.listen(env.PORT, () => {
+        logger.info(`Server running on port ${env.PORT}`);
     });
 
     // Graceful Shutdown

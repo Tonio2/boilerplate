@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
-import dotenv from 'dotenv';
+import env from '../env'
 
 interface DecodedToken {
   id: string;
@@ -10,13 +10,6 @@ interface DecodedToken {
 
 interface AuthenticatedRequest extends Request {
   user?: DecodedToken;
-}
-
-// Validate environment variable
-dotenv.config();
-const JWT_SECRET = process.env.JWT_ACCESS_SECRET;
-if (!JWT_SECRET) {
-  throw new Error('JWT_ACCESS_SECRET is not defined in environment variables');
 }
 
 export const authenticate = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -31,7 +24,7 @@ export const authenticate = (req: AuthenticatedRequest, res: Response, next: Nex
       return;
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as unknown as DecodedToken;
+    const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as unknown as DecodedToken;
 
     req.user = decoded;
     next();

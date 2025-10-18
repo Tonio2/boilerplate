@@ -6,20 +6,11 @@ import Joi from 'joi';
 import { Request, Response } from 'express';
 import crypto from 'crypto';
 import { sendEmail } from '../utils/sendEmail';
-import dotenv from 'dotenv';
-
-// Validate environment variable
-dotenv.config();
-const requiredVars = ['JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET', 'CLIENT_URL', 'JWT_EMAIL_SECRET'];
-requiredVars.forEach((varName) => {
-    if (!process.env[varName]) {
-        throw new Error(`${varName} is not defined in environment variables`);
-    }
-});
+import env from '../env'
 
 const createTokens = (userId: string) => {
-    const accessToken = jwt.sign({ id: userId }, process.env.JWT_ACCESS_SECRET!, { expiresIn: '15m' });
-    const refreshToken = jwt.sign({ id: userId }, process.env.JWT_REFRESH_SECRET!, { expiresIn: '7d' });
+    const accessToken = jwt.sign({ id: userId }, env.JWT_ACCESS_SECRET!, { expiresIn: '15m' });
+    const refreshToken = jwt.sign({ id: userId }, env.JWT_REFRESH_SECRET!, { expiresIn: '7d' });
     return { accessToken, refreshToken };
 };
 
@@ -49,8 +40,8 @@ export const register = async (req: Request, res: Response) => {
     const newUser = new User({ email, password: hashedPassword });
     await newUser.save();
 
-    const token = jwt.sign({ userId: newUser.id }, process.env.JWT_EMAIL_SECRET!, { expiresIn: '1h' });
-    const verificationURL = `${process.env.CLIENT_URL}/verify-email/${token}`;
+    const token = jwt.sign({ userId: newUser.id }, env.JWT_EMAIL_SECRET!, { expiresIn: '1h' });
+    const verificationURL = `${env.CLIENT_URL}/verify-email/${token}`;
 
     await sendEmail(
         newUser.email,
@@ -94,7 +85,7 @@ export const login = async (req: Request, res: Response) => {
 
     res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -125,7 +116,7 @@ export const refresh = async (req: Request, res: Response) => {
     const token = await RefreshToken.findOne({ token: hashedRefreshToken });
 
 
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as any;
+    const decoded = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET!) as any;
 
     if (!token || !token.userId.equals(decoded.id)) {
         res.status(401).json({ message: 'Invalid refresh token' });
@@ -142,7 +133,7 @@ export const refresh = async (req: Request, res: Response) => {
 
     res.cookie('refreshToken', newRefreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -187,7 +178,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     user.passwordResetExpires = Date.now() + 15 * 60 * 1000; // Token valid for 15 minutes
     await user.save();
 
-    const resetURL = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    const resetURL = `${env.CLIENT_URL}/reset-password/${resetToken}`;
 
     await sendEmail(
         user.email,
@@ -243,7 +234,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
     let user;
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_EMAIL_SECRET!) as any;
+        const decoded = jwt.verify(token, env.JWT_EMAIL_SECRET!) as any;
         user = await User.findById(decoded.userId);
     } catch (error) {
         res.status(400).json({ message: 'Invalid or expired token' });
@@ -290,8 +281,8 @@ export const resendVerificationEmail = async (req: Request, res: Response) => {
         return;
     }
 
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_EMAIL_SECRET!, { expiresIn: '1h' });
-    const verificationURL = `${process.env.CLIENT_URL}/verify-email/${token}`;
+    const token = jwt.sign({ userId: user.id }, env.JWT_EMAIL_SECRET!, { expiresIn: '1h' });
+    const verificationURL = `${env.CLIENT_URL}/verify-email/${token}`;
 
     await sendEmail(
         user.email,

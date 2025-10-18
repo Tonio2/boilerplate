@@ -1,19 +1,12 @@
 import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
-
-// TODO: Use a real email service like SendGrid or Mailgun
-
-dotenv.config();
-if (!process.env.GMAIL_PWD) {
-    throw new Error('GMAIL_PWD is not defined in environment variables');
-}
+import env from '../env'
 
 // Configure the SMTP transporter
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 'labalette.antoine@gmail.com',
-        pass: process.env.GMAIL_PWD,
+        pass: env.GMAIL_PWD,
     },
 });
 
