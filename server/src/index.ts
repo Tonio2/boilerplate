@@ -8,85 +8,150 @@ import rateLimit from 'express-rate-limit';
 import logger from './utils/logger';
 import debugLogger from './utils/debugLogger';
 import authRoutes from './routes/auth';
-import { errorHandler } from './middleware/errorHandler';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import path from 'path';
 
-import env from './env'
+import env from './env';
 
 const app = express();
 
+// ============================================
+// STATIC FILES (Production)
+// ============================================
 if (env.NODE_ENV === "production") {
-	console.log("Production Mode");
-	app.use(express.static(path.join(__dirname, "../../client/dist")));
-	app.get("*", (req, res) => {
-	  res.sendFile(path.join(__dirname, "../../client/dist/index.html"));
-	});
-  }
+    console.log("Production Mode");
+    app.use(express.static(path.join(__dirname, "../../client/dist")));
+}
 
-// Rate Limiter Configurations
+// ============================================
+// RATE LIMITERS
+// ============================================
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
+    max: 1000,
+    message: 'Too many requests from this IP, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
 });
 
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 50, // stricter limit for auth-related routes
+    max: 20, // Plus strict pour l'authentification
+    message: 'Too many authentication attempts, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+    // Skip successful requests (optionnel)
+    skipSuccessfulRequests: true,
 });
 
-// Middleware
+// ============================================
+// MIDDLEWARE
+// ============================================
 app.use(helmet());
 app.use(cors({
     origin: env.CLIENT_URL,
     credentials: true
 }));
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
-app.use(debugLogger);
+
+// Logger uniquement en développement
+if (env.NODE_ENV === 'development') {
+    app.use(debugLogger);
+}
+
 app.use(generalLimiter);
 
-
-
-// Routes
-app.use('/api/v1/auth', authLimiter, authRoutes);
-app.use('/api/v1', (req, res) => {
-    res.send('ok');
+// ============================================
+// HEALTH CHECK
+// ============================================
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        environment: env.NODE_ENV
+    });
 });
 
-// Error Handling Middleware
+// ============================================
+// API ROUTES
+// ============================================
+app.use('/api/v1/auth', authLimiter, authRoutes);
+
+// Test route
+app.get('/api/v1', (req, res) => {
+    res.json({
+        success: true,
+        message: 'API is running',
+        version: '1.0.0'
+    });
+});
+
+// ============================================
+// FRONTEND ROUTING (Production)
+// ============================================
+if (env.NODE_ENV === "production") {
+    app.get("*", (req, res) => {
+        res.sendFile(path.join(__dirname, "../../client/dist/index.html"));
+    });
+}
+
+// ============================================
+// ERROR HANDLING
+// ============================================
+// 404 handler - DOIT être avant errorHandler
+app.use(notFoundHandler);
+
+// Global error handler - DOIT être en dernier
 app.use(errorHandler);
 
-// Mongoose Connection
+// ============================================
+// DATABASE CONNECTION
+// ============================================
 const connectToDatabase = async () => {
     try {
         await mongoose.connect(env.MONGO_URI);
         logger.info('Connected to MongoDB');
     } catch (err) {
         logger.error('Error connecting to MongoDB:', err);
-        process.exit(1); // Exit the process if the database connection fails
+        process.exit(1);
     }
 };
 
-// Start Server
+// ============================================
+// START SERVER
+// ============================================
 const startServer = async () => {
-    await connectToDatabase(); // Ensure the database is connected before starting the server
+    await connectToDatabase();
+
     const server = app.listen(env.PORT, () => {
-        logger.info(`Server running on port ${env.PORT}`);
+        logger.info(`Server running on port ${env.PORT} in ${env.NODE_ENV} mode`);
     });
 
     // Graceful Shutdown
     const shutdown = (signal: string) => {
         logger.info(`Received ${signal}, shutting down gracefully...`);
+
         server.close(() => {
-            logger.info('Server closed');
-            process.exit(0);
+            logger.info('HTTP server closed');
+
+            mongoose.connection.close(false).then(() => {
+                logger.info('MongoDB connection closed');
+                process.exit(0);
+            });
         });
+
+        // Force shutdown after 10 seconds
+        setTimeout(() => {
+            logger.error('Could not close connections in time, forcing shutdown');
+            process.exit(1);
+        }, 10000);
     };
 
     process.on('SIGINT', () => shutdown('SIGINT'));
     process.on('SIGTERM', () => shutdown('SIGTERM'));
 };
 
-startServer().catch(err => {
-    logger.error('Failed to start server:', err);
-});
+startServer();

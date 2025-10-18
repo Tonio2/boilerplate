@@ -1,43 +1,101 @@
+// src/middleware/auth.ts
+
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
-import env from '../env'
+import { ApiError } from '../utils/apiError';
+import env from '../env';
 
 interface DecodedToken {
   id: string;
-  email: string;
-  role?: string;
+  iat?: number;
+  exp?: number;
 }
 
-interface AuthenticatedRequest extends Request {
+// Étendre l'interface Request pour inclure user
+export interface AuthenticatedRequest extends Request {
   user?: DecodedToken;
 }
 
-export const authenticate = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+/**
+ * Middleware d'authentification
+ * Vérifie la présence et la validité du JWT
+ */
+export const authenticate = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  // Extraire le token depuis le header Authorization ou les cookies
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith('Bearer ')
+    ? authHeader.split(' ')[1]
+    : req.cookies?.accessToken; // Note: tu utilisais 'token' mais devrait être 'accessToken'
+
+  if (!token) {
+    throw ApiError.unauthorized('Authentication required. Please provide a valid token.');
+  }
+
   try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.startsWith('Bearer ')
-      ? authHeader.split(' ')[1]
-      : req.cookies?.token;
+    // Vérifier le JWT
+    const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as DecodedToken;
 
-    if (!token) {
-      res.status(401).json({ message: 'No token provided' });
-      return;
-    }
-
-    const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as unknown as DecodedToken;
-
+    // Attacher les informations de l'utilisateur à la requête
     req.user = decoded;
+
     next();
   } catch (error) {
-    if (error instanceof jwt.TokenExpiredError) {
-      res.status(401).json({ message: 'Token expired' });
-      return;
-    }
-    if (error instanceof jwt.JsonWebTokenError) {
-      res.status(401).json({ message: 'Invalid token' });
-      return;
-    }
-    console.error('Unexpected error during authentication:', error);
-    res.status(401).json({ message: 'Authentication error' });
+    // Les erreurs JWT seront automatiquement gérées par l'errorHandler
+    // qui va les convertir en ApiError.unauthorized
+    throw error;
   }
+};
+
+/**
+ * Middleware pour vérifier les rôles
+ * À utiliser APRÈS authenticate
+ */
+export const authorize = (...allowedRoles: string[]) => {
+  return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      throw ApiError.unauthorized('Authentication required');
+    }
+
+    // Pour implémenter correctement, il faudrait charger l'utilisateur depuis la DB
+    // car le JWT ne contient que l'id, pas le role
+    // Ceci est un placeholder pour la future implémentation avec RBAC
+
+    // TODO: Implémenter avec User.findById(req.user.id) et vérifier user.role
+
+    next();
+  };
+};
+
+/**
+ * Middleware optionnel pour extraire l'utilisateur sans le requérir
+ * Utile pour les routes publiques qui peuvent avoir un comportement différent si authentifié
+ */
+export const optionalAuthenticate = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith('Bearer ')
+    ? authHeader.split(' ')[1]
+    : req.cookies?.accessToken;
+
+  if (!token) {
+    // Pas de token = pas d'erreur, juste continuer
+    return next();
+  }
+
+  try {
+    const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as DecodedToken;
+    req.user = decoded;
+  } catch (error) {
+    // En cas d'erreur, on ignore simplement (token invalide/expiré)
+    // L'utilisateur sera traité comme non-authentifié
+  }
+
+  next();
 };
