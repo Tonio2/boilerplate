@@ -11,6 +11,7 @@ For more detailed documentation, please refer to the [prd](./docs/prd.md).
 - Node.js (v14 or higher)
 - npm (v6 or higher) or yarn
 - Docker
+- Gmail account with its app password [Gmail Setup Guide for Nodemailer](.docs/gmail.md)
 
 ## Installation
 

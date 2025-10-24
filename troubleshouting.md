@@ -64,7 +64,7 @@ Then update your application's database connection string to use port `5433` ins
 
 ---
 
-## Prevention
+### Prevention
 
 - If you're developing with Docker PostgreSQL, consider disabling your local PostgreSQL service permanently
 - Use non-standard ports (like 5433) in docker-compose.yml to avoid conflicts
