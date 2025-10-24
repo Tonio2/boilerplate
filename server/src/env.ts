@@ -6,7 +6,7 @@ const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET!;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
 const CLIENT_URL = process.env.CLIENT_URL!;
 const JWT_EMAIL_SECRET = process.env.JWT_EMAIL_SECRET!;
-const MONGO_URI = process.env.MONGO_URI!;
+const DATABASE_URL = process.env.DATABASE_URL!;
 const GMAIL_PWD = process.env.GMAIL_PWD!;
 
 // Optional
@@ -18,7 +18,7 @@ const requiredVars = [
     'JWT_REFRESH_SECRET',
     'CLIENT_URL',
     'JWT_EMAIL_SECRET',
-    'MONGO_URI',
+    'DATABASE_URL',
     'GMAIL_PWD',
 ];
 
@@ -33,7 +33,7 @@ export default {
     JWT_REFRESH_SECRET,
     CLIENT_URL,
     JWT_EMAIL_SECRET,
-    MONGO_URI,
+    DATABASE_URL,
     GMAIL_PWD,
     PORT,
     NODE_ENV

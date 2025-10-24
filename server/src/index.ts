@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -10,6 +9,7 @@ import debugLogger from './utils/debugLogger';
 import authRoutes from './routes/auth';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import path from 'path';
+import { pool } from './db';
 
 import env from './env';
 
@@ -112,10 +112,10 @@ app.use(errorHandler);
 // ============================================
 const connectToDatabase = async () => {
     try {
-        await mongoose.connect(env.MONGO_URI);
-        logger.info('Connected to MongoDB');
+        await pool.query('SELECT NOW()');
+        logger.info('Connected to PostgreSQL');
     } catch (err) {
-        logger.error('Error connecting to MongoDB:', err);
+        logger.error('Error connecting to PostgreSQL:', err);
         process.exit(1);
     }
 };
@@ -137,8 +137,8 @@ const startServer = async () => {
         server.close(() => {
             logger.info('HTTP server closed');
 
-            mongoose.connection.close(false).then(() => {
-                logger.info('MongoDB connection closed');
+            pool.end().then(() => {
+                logger.info('PostgreSQL connection closed');
                 process.exit(0);
             });
         });

@@ -1,7 +1,8 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { User } from '../models/User';
-import { RefreshToken } from '../models/RefreshToken';
+import { db } from '../db';
+import { users, refreshTokens } from '../db/schema';
+import { eq, and, gt } from 'drizzle-orm';
 import Joi from 'joi';
 import { Request, Response } from 'express';
 import crypto from 'crypto';
@@ -39,22 +40,24 @@ export const register = async (req: Request, res: Response) => {
 
     const { email, password } = req.body;
 
-    // Vérifier si l'utilisateur existe déjà
-    const existingUser = await User.findOne({ email });
+    // Check if user already exists
+    const existingUser = await db.query.users.findFirst({
+        where: eq(users.email, email)
+    });
+
     if (existingUser) {
         throw ApiError.conflict('An account with this email already exists');
     }
 
-    // Créer le nouvel utilisateur
+    // Create new user
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({
+    const [newUser] = await db.insert(users).values({
         email,
         password: hashedPassword,
         isEmailVerified: false
-    });
-    await newUser.save();
+    }).returning();
 
-    // Envoyer l'email de vérification
+    // Send verification email
     const token = jwt.sign({ userId: newUser.id }, env.JWT_EMAIL_SECRET!, {
         expiresIn: '1h'
     });
@@ -89,48 +92,48 @@ export const login = async (req: Request, res: Response) => {
 
     const { email, password } = req.body;
 
-    // Trouver l'utilisateur
-    const user = await User.findOne({ email });
+    // Find user
+    const user = await db.query.users.findFirst({
+        where: eq(users.email, email)
+    });
 
-    // Vérifier l'utilisateur ET le mot de passe en même temps
-    // pour éviter le timing attack
+    // Verify user AND password together to avoid timing attack
     const isValidPassword = user
         ? await bcrypt.compare(password, user.password)
         : false;
 
     if (!user || !isValidPassword) {
-        // Message générique pour éviter l'énumération d'emails
+        // Generic message to prevent email enumeration
         throw ApiError.unauthorized('Invalid email or password');
     }
 
-    // Vérifier que l'email est vérifié
+    // Check email is verified
     if (!user.isEmailVerified) {
         throw ApiError.forbidden(
             'Please verify your email before logging in. Check your inbox or request a new verification email.'
         );
     }
 
-    // Créer les tokens
+    // Create tokens
     const { accessToken, refreshToken } = createTokens(user.id);
 
-    // Stocker le refresh token hashé en DB
+    // Store hashed refresh token in DB
     const hashedRefreshToken = crypto
         .createHash('sha256')
         .update(refreshToken)
         .digest('hex');
 
-    const newRefreshToken = new RefreshToken({
+    await db.insert(refreshTokens).values({
         token: hashedRefreshToken,
         userId: user.id
     });
-    await newRefreshToken.save();
 
-    // Définir le cookie
+    // Set cookie
     res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     res.json({
@@ -156,7 +159,8 @@ export const logout = async (req: Request, res: Response) => {
             .update(refreshToken)
             .digest('hex');
 
-        await RefreshToken.deleteOne({ token: hashedRefreshToken });
+        await db.delete(refreshTokens)
+            .where(eq(refreshTokens.token, hashedRefreshToken));
     }
 
     res.clearCookie('refreshToken');
@@ -176,46 +180,48 @@ export const refresh = async (req: Request, res: Response) => {
         throw ApiError.unauthorized('Refresh token required');
     }
 
-    // Vérifier le JWT en premier (sécurité)
+    // Verify JWT first (security)
     let decoded: any;
     try {
         decoded = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET!);
     } catch (error) {
-        // L'errorHandler va gérer automatiquement
+        // Error handler will handle this automatically
         throw error;
     }
 
-    // Vérifier que le token existe en DB
+    // Verify token exists in DB
     const hashedRefreshToken = crypto
         .createHash('sha256')
         .update(refreshToken)
         .digest('hex');
 
-    const tokenDoc = await RefreshToken.findOne({ token: hashedRefreshToken });
+    const tokenDoc = await db.query.refreshTokens.findFirst({
+        where: eq(refreshTokens.token, hashedRefreshToken)
+    });
 
-    if (!tokenDoc || !tokenDoc.userId.equals(decoded.id)) {
+    if (!tokenDoc || tokenDoc.userId !== decoded.id) {
         throw ApiError.unauthorized('Invalid refresh token');
     }
 
-    // Supprimer l'ancien token
-    await RefreshToken.deleteOne({ token: hashedRefreshToken });
+    // Delete old token
+    await db.delete(refreshTokens)
+        .where(eq(refreshTokens.token, hashedRefreshToken));
 
-    // Créer de nouveaux tokens
+    // Create new tokens
     const { accessToken, refreshToken: newRefreshToken } = createTokens(decoded.id);
 
-    // Stocker le nouveau refresh token
+    // Store new refresh token
     const hashedNewRefreshToken = crypto
         .createHash('sha256')
         .update(newRefreshToken)
         .digest('hex');
 
-    const newToken = new RefreshToken({
+    await db.insert(refreshTokens).values({
         token: hashedNewRefreshToken,
         userId: decoded.id
     });
-    await newToken.save();
 
-    // Mettre à jour le cookie
+    // Update cookie
     res.cookie('refreshToken', newRefreshToken, {
         httpOnly: true,
         secure: env.NODE_ENV === 'production',
@@ -233,7 +239,9 @@ export const refresh = async (req: Request, res: Response) => {
 // GET CURRENT USER
 // ============================================
 export const me = async (req: any, res: Response) => {
-    const user = await User.findById(req.user.id);
+    const user = await db.query.users.findFirst({
+        where: eq(users.id, req.user.id)
+    });
 
     if (!user) {
         throw ApiError.notFound('User not found');
@@ -265,10 +273,12 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
     const { email } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await db.query.users.findFirst({
+        where: eq(users.email, email)
+    });
 
-    // Pour éviter l'énumération d'emails, toujours retourner le même message
-    // même si l'utilisateur n'existe pas
+    // To prevent email enumeration, always return the same message
+    // even if user doesn't exist
     if (!user) {
         res.status(200).json({
             success: true,
@@ -277,18 +287,21 @@ export const forgotPassword = async (req: Request, res: Response) => {
         return;
     }
 
-    // Générer le token de reset
+    // Generate reset token
     const resetToken = crypto.randomBytes(32).toString('hex');
     const resetTokenHash = crypto
         .createHash('sha256')
         .update(resetToken)
         .digest('hex');
 
-    user.passwordResetToken = resetTokenHash;
-    user.passwordResetExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
-    await user.save();
+    await db.update(users)
+        .set({
+            passwordResetToken: resetTokenHash,
+            passwordResetExpires: Date.now() + 15 * 60 * 1000, // 15 minutes
+        })
+        .where(eq(users.id, user.id));
 
-    // Envoyer l'email
+    // Send email
     const resetURL = `${env.CLIENT_URL}/reset-password/${resetToken}`;
 
     try {
@@ -301,10 +314,13 @@ export const forgotPassword = async (req: Request, res: Response) => {
              <p>If you didn't request this, please ignore this email.</p>`,
         );
     } catch (emailError) {
-        // Rollback si l'email échoue
-        user.passwordResetToken = undefined;
-        user.passwordResetExpires = undefined;
-        await user.save();
+        // Rollback if email fails
+        await db.update(users)
+            .set({
+                passwordResetToken: null,
+                passwordResetExpires: null,
+            })
+            .where(eq(users.id, user.id));
 
         throw ApiError.internal('Failed to send password reset email. Please try again later.');
     }
@@ -331,30 +347,37 @@ export const resetPassword = async (req: Request, res: Response) => {
 
     const { password, token } = req.body;
 
-    // Hasher le token pour comparer avec la DB
+    // Hash token to compare with DB
     const resetTokenHash = crypto
         .createHash('sha256')
         .update(token)
         .digest('hex');
 
-    // Trouver l'utilisateur avec un token valide
-    const user = await User.findOne({
-        passwordResetToken: resetTokenHash,
-        passwordResetExpires: { $gt: Date.now() },
+    // Find user with valid token
+    const user = await db.query.users.findFirst({
+        where: and(
+            eq(users.passwordResetToken, resetTokenHash),
+            gt(users.passwordResetExpires, Date.now())
+        )
     });
 
     if (!user) {
         throw ApiError.badRequest('Invalid or expired password reset token');
     }
 
-    // Mettre à jour le mot de passe
-    user.password = await bcrypt.hash(password, 10);
-    user.passwordResetToken = undefined;
-    user.passwordResetExpires = undefined;
-    await user.save();
+    // Update password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await db.update(users)
+        .set({
+            password: hashedPassword,
+            passwordResetToken: null,
+            passwordResetExpires: null,
+        })
+        .where(eq(users.id, user.id));
 
-    // Invalider tous les refresh tokens existants (sécurité)
-    await RefreshToken.deleteMany({ userId: user._id });
+    // Invalidate all refresh tokens (security)
+    await db.delete(refreshTokens)
+        .where(eq(refreshTokens.userId, user.id));
 
     res.status(200).json({
         success: true,
@@ -377,7 +400,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
 
     const { token } = req.body;
 
-    // Vérifier le JWT
+    // Verify JWT
     let decoded: any;
     try {
         decoded = jwt.verify(token, env.JWT_EMAIL_SECRET!);
@@ -385,8 +408,10 @@ export const verifyEmail = async (req: Request, res: Response) => {
         throw ApiError.badRequest('Invalid or expired verification token');
     }
 
-    // Trouver l'utilisateur
-    const user = await User.findById(decoded.userId);
+    // Find user
+    const user = await db.query.users.findFirst({
+        where: eq(users.id, decoded.userId)
+    });
 
     if (!user) {
         throw ApiError.notFound('User not found');
@@ -396,9 +421,10 @@ export const verifyEmail = async (req: Request, res: Response) => {
         throw ApiError.badRequest('Email already verified');
     }
 
-    // Vérifier l'email
-    user.isEmailVerified = true;
-    await user.save();
+    // Verify email
+    await db.update(users)
+        .set({ isEmailVerified: true })
+        .where(eq(users.id, user.id));
 
     res.status(200).json({
         success: true,
@@ -420,7 +446,9 @@ export const resendVerificationEmail = async (req: Request, res: Response) => {
     }
 
     const { email } = req.body;
-    const user = await User.findOne({ email });
+    const user = await db.query.users.findFirst({
+        where: eq(users.email, email)
+    });
 
     if (!user) {
         throw ApiError.notFound('No account found with this email');
@@ -430,7 +458,7 @@ export const resendVerificationEmail = async (req: Request, res: Response) => {
         throw ApiError.badRequest('Email already verified');
     }
 
-    // Générer un nouveau token
+    // Generate new token
     const token = jwt.sign({ userId: user.id }, env.JWT_EMAIL_SECRET!, {
         expiresIn: '1h'
     });

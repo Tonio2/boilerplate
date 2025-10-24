@@ -10,18 +10,35 @@ For more detailed documentation, please refer to the [prd](./docs/prd.md).
 
 - Node.js (v14 or higher)
 - npm (v6 or higher) or yarn
-- MongoDB
+- Docker
 
 ## Installation
 
 1. Clone the repository:
 
 ```sh
-git clone https://github.com/your-username/your-repo.git
-cd your-repo
+git clone https://github.com/Tonio2/boilerplate.git
+cd boilerplate
 ```
 
-2. Install dependencies for both client and server:
+2. Create environment variable files:
+
+```sh
+# Docker env variables
+cp .env.example .env
+
+# Server environment variables
+cd ../server
+cp .env.example .env
+
+# Client environment variables
+cd ../client
+cp .env.example .env
+```
+
+3. Update the .env files with your configuration.
+
+4. Install dependencies for both client and server:
 
 ```sh
 # Install server dependencies
@@ -33,37 +50,34 @@ cd ../client
 npm install
 ```
 
-3. Create environment variable files:
+5. Initiate db schemas:
 
 ```sh
-# Server environment variables
-cd ../server
-cp .env.example .env
+# Start db
+docker compose up -d
 
-# Client environment variables
-cd ../client
-cp .env.example .env
+# Initiate schemas
+cd server
+npm run db:push
 ```
 
-4. Update the .env files with your configuration.
-
-5. Start MongoDB:
-
-```sh
-sudo systemctl start mongod
-sudo systemctl enable mongod
-```
 
 ## Running the Project
 
-1. Start the backend server:
+1. Start the postgres server:
+
+```sh
+docker compose up -d
+```
+
+2. Start the backend server:
 
 ```sh
 cd server
 npm run dev
 ```
 
-2. Start the frontend client:
+3. Start the frontend client:
 
 ```sh
 cd client
@@ -72,16 +86,45 @@ npm start
 
 ## Push to prod
 
-1. Update server/.env
+# TODO
 
-```sh
-env=production
-```
+Your app is accessible at `http://localhost:5000` and the api at `http://localhost:5000/api`
 
-2. Start the app from server
+## Database Management
+
+### Development Commands
 
 ```bash
-npm run dev
+# Push schema changes to database (development only)
+npm run db:push
+
+# Generate migration files
+npm run db:generate
+
+# Run migrations (production)
+npm run db:migrate
+
+# Open Drizzle Studio (database GUI)
+npm run db:studio
 ```
 
-Your app is accessible at `http://localhost:500` and the api ar `http://localhost:5000/api`
+### Accessing the Database
+
+**Via Drizzle Studio:**
+```bash
+cd server
+npm run db:studio
+```
+Opens at `https://local.drizzle.studio`
+
+**Via psql CLI:**
+```bash
+docker exec -it boilerplate-postgres psql -U postgres -d boilerplate
+```
+
+**Via any PostgreSQL client:**
+- Host: localhost
+- Port: 5432
+- Database: boilerplate
+- Username: postgres
+- Password: postgres
