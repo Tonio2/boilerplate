@@ -5,12 +5,12 @@ import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 
-import { logger, debugLogger } from '@/features/logger';
-import { authRoutes } from '@/features/auth';
-import { errorHandler, notFoundHandler } from '@/features/errors';
+import { logger, debugLogger } from '@features/logger';
+import { authRoutes } from '@features/auth';
+import { errorHandler, notFoundHandler } from '@features/errors';
 
-import { pool } from '@/config/db';
-import env from '@/config/env';
+import { pool } from '@config/db';
+import env from '@config/env';
 
 const app = express();
 

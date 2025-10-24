@@ -5,11 +5,11 @@ import Joi from 'joi';
 import { Request, Response } from 'express';
 import crypto from 'crypto';
 
-import { sendEmail } from '@/features/email';
-import { ApiError } from '@/features/errors';
+import { sendEmail } from '@features/email';
+import { ApiError } from '@features/errors';
 
-import env from '@/config/env';
-import { db } from '@/config/db';
+import env from '@config/env';
+import { db } from '@config/db';
 
 import { users, refreshTokens } from './auth.schema';
 

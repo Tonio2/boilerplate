@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 
-import { logger } from '@/features/logger';
+import { logger } from '@features/logger';
 
-import env from '@/config/env';
+import env from '@config/env';
 
 import { ApiError } from './apiError';
 

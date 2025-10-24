@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken';
 import { Response, NextFunction } from 'express';
 
-import { ApiError } from '@/features/errors';
+import { ApiError } from '@features/errors';
 
-import env from '@/config/env';
+import env from '@config/env';
 
 import { DecodedToken, AuthenticatedRequest } from './auth.type';
 
