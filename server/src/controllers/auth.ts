@@ -63,12 +63,21 @@ export const register = async (req: Request, res: Response) => {
     });
     const verificationURL = `${env.CLIENT_URL}/verify-email/${token}`;
 
-    await sendEmail(
-        newUser.email,
-        'Email Verification',
-        `<p>Welcome! Please verify your email by clicking <a href="${verificationURL}">here</a>.</p>
-         <p>This link will expire in 1 hour.</p>`,
-    );
+    try {
+        await sendEmail(
+            newUser.email,
+            'Email Verification',
+            `<p>Welcome! Please verify your email by clicking <a href="${verificationURL}">here</a>.</p>
+             <p>This link will expire in 1 hour.</p>`,
+        );
+    } catch (err) {
+        console.error('Error sending verification email:', err);
+        // Pas d'erreur bloquante ici
+        return res.status(201).json({
+            success: true,
+            message: 'Account created, but verification email could not be sent. Please contact support.'
+        });
+    }
 
     res.status(201).json({
         success: true,
