@@ -3,15 +3,14 @@ import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
-
-import logger from './features/logger/logger';
-import debugLogger from './features/logger/debugLogger';
-import authRoutes from './features/auth/auth.routes';
-import { errorHandler, notFoundHandler } from './features/errors/errorHandler';
 import path from 'path';
-import { pool } from './config/db';
 
-import env from './config/env';
+import { logger, debugLogger } from '@/features/logger';
+import { authRoutes } from '@/features/auth';
+import { errorHandler, notFoundHandler } from '@/features/errors';
+
+import { pool } from '@/config/db';
+import env from '@/config/env';
 
 const app = express();
 

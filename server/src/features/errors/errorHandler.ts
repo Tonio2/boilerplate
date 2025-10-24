@@ -1,9 +1,10 @@
-// src/middleware/errorHandler.ts
-
 import { Request, Response, NextFunction } from 'express';
+
+import { logger } from '@/features/logger';
+
+import env from '@/config/env';
+
 import { ApiError } from './apiError';
-import logger from '../logger/logger';
-import env from '../../config/env';
 
 /**
  * Extrait les erreurs de validation depuis différents types d'erreurs

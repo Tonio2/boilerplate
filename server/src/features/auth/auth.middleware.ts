@@ -1,21 +1,11 @@
-// src/middleware/auth.ts
-
 import jwt from 'jsonwebtoken';
-import { Request, Response, NextFunction } from 'express';
-import { ApiError } from '../errors/apiError';
-import env from '../../config/env';
+import { Response, NextFunction } from 'express';
 
-interface DecodedToken {
-  id: string;
-  role: string;
-  iat?: number;
-  exp?: number;
-}
+import { ApiError } from '@/features/errors';
 
-// Étendre l'interface Request pour inclure user
-export interface AuthenticatedRequest extends Request {
-  user?: DecodedToken;
-}
+import env from '@/config/env';
+
+import { DecodedToken, AuthenticatedRequest } from './auth.type';
 
 /**
  * Middleware d'authentification

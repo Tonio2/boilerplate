@@ -1,14 +1,17 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { db } from '../../config/db';
-import { users, refreshTokens } from './auth.schema';
 import { eq, and, gt } from 'drizzle-orm';
 import Joi from 'joi';
 import { Request, Response } from 'express';
 import crypto from 'crypto';
-import { sendEmail } from '../email/sendEmail';
-import { ApiError } from '../errors/apiError';
-import env from '../../config/env';
+
+import { sendEmail } from '@/features/email';
+import { ApiError } from '@/features/errors';
+
+import env from '@/config/env';
+import { db } from '@/config/db';
+
+import { users, refreshTokens } from './auth.schema';
 
 const createTokens = (userId: string, role: string) => {
     const accessToken = jwt.sign({ id: userId, role }, env.JWT_ACCESS_SECRET!, {
