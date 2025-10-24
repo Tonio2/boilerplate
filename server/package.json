@@ -2,11 +2,10 @@
     "name": "server",
     "version": "1.0.0",
     "main": "index.js",
-    "type": "module",
     "scripts": {
         "start": "node dist/index.js",
-        "dev": "vite-node --watch src/index.ts",
-        "build": "vite build",
+        "dev": "tsx watch src/index.ts",
+        "build": "tsc",
         "db:generate": "drizzle-kit generate",
         "db:migrate": "drizzle-kit migrate",
         "db:push": "drizzle-kit push",
@@ -45,9 +44,7 @@
         "@types/node": "^22.10.5",
         "@types/nodemailer": "^6.4.17",
         "@types/pg": "^8.15.5",
-        "typescript": "^5.7.2",
-        "vite": "^7.1.12",
-        "vite-node": "^3.2.4",
-        "vite-tsconfig-paths": "^5.1.4"
+        "tsx": "^4.20.6",
+        "typescript": "^5.7.2"
     }
 }
