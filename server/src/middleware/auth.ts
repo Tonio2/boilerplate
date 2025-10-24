@@ -7,6 +7,7 @@ import env from '../env';
 
 interface DecodedToken {
   id: string;
+  role: string;
   iat?: number;
   exp?: number;
 }
@@ -53,6 +54,10 @@ export const authenticate = (
 /**
  * Middleware pour vérifier les rôles
  * À utiliser APRÈS authenticate
+ *
+ * @example
+ * router.get('/admin', authenticate, authorize('admin'), adminController);
+ * router.get('/staff', authenticate, authorize('admin', 'moderator'), staffController);
  */
 export const authorize = (...allowedRoles: string[]) => {
   return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -60,11 +65,12 @@ export const authorize = (...allowedRoles: string[]) => {
       throw ApiError.unauthorized('Authentication required');
     }
 
-    // Pour implémenter correctement, il faudrait charger l'utilisateur depuis la DB
-    // car le JWT ne contient que l'id, pas le role
-    // Ceci est un placeholder pour la future implémentation avec RBAC
-
-    // TODO: Implémenter avec User.findById(req.user.id) et vérifier user.role
+    // Check if user's role is in the allowed roles
+    if (!allowedRoles.includes(req.user.role)) {
+      throw ApiError.forbidden(
+        `Access denied. Required role(s): ${allowedRoles.join(', ')}. Your role: ${req.user.role}`
+      );
+    }
 
     next();
   };

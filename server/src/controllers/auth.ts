@@ -10,8 +10,8 @@ import { sendEmail } from '../utils/sendEmail';
 import { ApiError } from '../utils/apiError';
 import env from '../env';
 
-const createTokens = (userId: string) => {
-    const accessToken = jwt.sign({ id: userId }, env.JWT_ACCESS_SECRET!, {
+const createTokens = (userId: string, role: string) => {
+    const accessToken = jwt.sign({ id: userId, role }, env.JWT_ACCESS_SECRET!, {
         expiresIn: '15m'
     });
     const refreshToken = jwt.sign({ id: userId }, env.JWT_REFRESH_SECRET!, {
@@ -125,7 +125,7 @@ export const login = async (req: Request, res: Response) => {
     }
 
     // Create tokens
-    const { accessToken, refreshToken } = createTokens(user.id);
+    const { accessToken, refreshToken } = createTokens(user.id, user.role);
 
     // Store hashed refresh token in DB
     const hashedRefreshToken = crypto
@@ -217,8 +217,17 @@ export const refresh = async (req: Request, res: Response) => {
     await db.delete(refreshTokens)
         .where(eq(refreshTokens.token, hashedRefreshToken));
 
+    // Fetch user to get current role (in case it changed)
+    const user = await db.query.users.findFirst({
+        where: eq(users.id, decoded.id)
+    });
+
+    if (!user) {
+        throw ApiError.notFound('User not found');
+    }
+
     // Create new tokens
-    const { accessToken, refreshToken: newRefreshToken } = createTokens(decoded.id);
+    const { accessToken, refreshToken: newRefreshToken } = createTokens(user.id, user.role);
 
     // Store new refresh token
     const hashedNewRefreshToken = crypto
