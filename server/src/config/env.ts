@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 // Load environment variables from root .env file (single source of truth)
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 // PostgreSQL configuration (from root .env, used by Docker Compose)
 const POSTGRES_USER = process.env.POSTGRES_USER || 'postgres';

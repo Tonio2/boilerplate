@@ -2,8 +2,8 @@
 
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
-import { ApiError } from '../utils/apiError';
-import env from '../env';
+import { ApiError } from '../errors/apiError';
+import env from '../../config/env';
 
 interface DecodedToken {
   id: string;

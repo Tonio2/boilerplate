@@ -1,6 +1,6 @@
 import express from 'express';
-import { register, login, logout, refresh, me, verifyEmail, forgotPassword, resetPassword } from '../controllers/auth';
-import { authenticate } from '../middleware/auth';
+import { register, login, logout, refresh, me, verifyEmail, forgotPassword, resetPassword } from './auth.controller';
+import { authenticate } from './auth.middleware';
 import asyncHandler from 'express-async-handler';
 
 const router = express.Router();

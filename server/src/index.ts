@@ -4,14 +4,14 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 
-import logger from './utils/logger';
-import debugLogger from './utils/debugLogger';
-import authRoutes from './routes/auth';
-import { errorHandler, notFoundHandler } from './middleware/errorHandler';
+import logger from './features/logger/logger';
+import debugLogger from './features/logger/debugLogger';
+import authRoutes from './features/auth/auth.routes';
+import { errorHandler, notFoundHandler } from './features/errors/errorHandler';
 import path from 'path';
-import { pool } from './db';
+import { pool } from './config/db';
 
-import env from './env';
+import env from './config/env';
 
 const app = express();
 
