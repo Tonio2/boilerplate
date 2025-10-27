@@ -47,6 +47,7 @@
     "@types/testing-library__dom": "^7.0.2",
     "@types/testing-library__react": "^10.0.1",
     "@vitejs/plugin-react": "^4.3.4",
-    "vite": "^6.1.0"
+    "vite": "^6.1.0",
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }

@@ -20,7 +20,13 @@
         "allowJs": false,
         "jsx": "react",
         "moduleResolution": "node",
-        "baseUrl": "src",
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["src/*"],
+            "@features/*": ["src/features/*"],
+            "@shared/*": ["src/shared/*"],
+            "@config/*": ["src/config/*"]
+        },
         "forceConsistentCasingInFileNames": true,
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,

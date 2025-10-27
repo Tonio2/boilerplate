@@ -1,5 +1,5 @@
 import React from "react";
-import { useAuth } from "../hooks/useAuth"; // Adjust the import path as necessary
+import { useAuth } from "@features/auth/hooks/useAuth";
 
 const Profile = () => {
     const { user } = useAuth();

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import API from "../services/api";
-import { showToast } from "../services/toast";
+import API from "@shared/services/api";
+import { showToast } from "@shared/services/toast";
 
 
 const ForgotPassword = () => {

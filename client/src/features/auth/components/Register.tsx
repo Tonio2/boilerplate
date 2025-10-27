@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "../services/api";
-import { showToast } from "../services/toast";
+import API from "@shared/services/api";
+import { showToast } from "@shared/services/toast";
 
 
 const Register = () => {
