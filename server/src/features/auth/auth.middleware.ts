@@ -16,27 +16,24 @@ export const authenticate = (
   res: Response,
   next: NextFunction
 ) => {
-  // Extraire le token depuis le header Authorization ou les cookies
-  const authHeader = req.headers.authorization;
-  const token = authHeader?.startsWith('Bearer ')
-    ? authHeader.split(' ')[1]
-    : req.cookies?.accessToken; // Note: tu utilisais 'token' mais devrait être 'accessToken'
+  // Extract token from httpOnly cookie (prioritized for security)
+  const token = req.cookies?.accessToken;
 
   if (!token) {
     throw ApiError.unauthorized('Authentication required. Please provide a valid token.');
   }
 
   try {
-    // Vérifier le JWT
+    // Verify JWT
     const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as DecodedToken;
 
-    // Attacher les informations de l'utilisateur à la requête
+    // Attach user information to request
     req.user = decoded;
 
     next();
   } catch (error) {
-    // Les erreurs JWT seront automatiquement gérées par l'errorHandler
-    // qui va les convertir en ApiError.unauthorized
+    // JWT errors will be automatically handled by errorHandler
+    // which converts them to ApiError.unauthorized
     throw error;
   }
 };
@@ -75,13 +72,11 @@ export const optionalAuthenticate = (
   res: Response,
   next: NextFunction
 ) => {
-  const authHeader = req.headers.authorization;
-  const token = authHeader?.startsWith('Bearer ')
-    ? authHeader.split(' ')[1]
-    : req.cookies?.accessToken;
+  // Extract token from httpOnly cookie
+  const token = req.cookies?.accessToken;
 
   if (!token) {
-    // Pas de token = pas d'erreur, juste continuer
+    // No token = no error, just continue
     return next();
   }
 
@@ -89,8 +84,8 @@ export const optionalAuthenticate = (
     const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as DecodedToken;
     req.user = decoded;
   } catch (error) {
-    // En cas d'erreur, on ignore simplement (token invalide/expiré)
-    // L'utilisateur sera traité comme non-authentifié
+    // In case of error, simply ignore (invalid/expired token)
+    // User will be treated as unauthenticated
   }
 
   next();

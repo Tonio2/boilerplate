@@ -6,7 +6,7 @@ import { showToast } from "@shared/services/toast";
 
 
 const Navbar = () => {
-    const { user, logout } = useAuth();
+    const { user, loading, logout } = useAuth();
 
     const handleLogout = async () => {
         try {
@@ -22,7 +22,9 @@ const Navbar = () => {
         <nav className="bg-gray-800 text-white p-4 flex justify-between">
             <Link to="/" className="font-bold text-lg">My App</Link>
             <div>
-                {user ? (
+                {loading ? (
+                    <span className="text-gray-400">Loading...</span>
+                ) : user ? (
                     <>
                         <Link to="/dashboard" className="mr-4">Dashboard</Link>
                         <Link to="/profile" className="mr-4">Profile</Link>

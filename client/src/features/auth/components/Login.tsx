@@ -24,7 +24,7 @@ const Login = () => {
         setIsLoading(true);
         try {
             const { data } = await API.post("/auth/login", { email, password });
-            login(data.user, data.accessToken);
+            login(data.user);
             showToast("Login successful!", "success");
         } catch (error) {
             console.error("Login failed", error);

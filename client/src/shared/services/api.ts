@@ -3,37 +3,22 @@ import env from "@config/env";
 
 const API = axios.create({
     baseURL: env.API_BASE_URL,
-    withCredentials: true, // Include cookies (for refreshToken)
+    withCredentials: true, // Include cookies (for access and refresh tokens)
 });
 
 let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = [];
+let refreshSubscribers: (() => void)[] = [];
 
-const TokenService = {
-    getToken: () => localStorage.getItem("token"),
-    setToken: (token: string) => localStorage.setItem("token", token),
-    removeToken: () => localStorage.removeItem("token"),
-};
-
-const onRefreshed = (token: string) => {
-    refreshSubscribers.forEach((callback) => callback(token));
+const onRefreshed = () => {
+    refreshSubscribers.forEach((callback) => callback());
     refreshSubscribers = [];
 };
 
-const addRefreshSubscriber = (callback: (token: string) => void) => {
+const addRefreshSubscriber = (callback: () => void) => {
     refreshSubscribers.push(callback);
 };
 
-API.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => Promise.reject(error)
-);
+// No need for request interceptor - cookies are sent automatically
 
 API.interceptors.response.use(
     (response) => {
@@ -41,12 +26,15 @@ API.interceptors.response.use(
     },
     async (error) => {
         const originalRequest = error.config;
+
+        // If 401 and not already retried, try to refresh token
         if (error.response && error.response.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
+
+            // If already refreshing, queue this request
             if (isRefreshing) {
                 return new Promise((resolve) => {
-                    addRefreshSubscriber((token) => {
-                        originalRequest.headers.Authorization = `Bearer ${token}`;
+                    addRefreshSubscriber(() => {
                         resolve(API(originalRequest));
                     });
                 });
@@ -55,30 +43,30 @@ API.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                const { data } = await axios.post(
+                // Call refresh endpoint - cookies are sent automatically
+                await axios.post(
                     `${API.defaults.baseURL}/auth/refresh`,
-                    {}, // No need to send data, cookies handle the refreshToken
-                    { withCredentials: true } // Ensure cookies are sent
+                    {},
+                    { withCredentials: true }
                 );
 
-                const { accessToken } = data;
-                TokenService.setToken(accessToken);
-
-                API.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
-                onRefreshed(accessToken);
-
+                // Notify all queued requests that token is refreshed
+                onRefreshed();
                 isRefreshing = false;
 
+                // Retry the original request
                 return API(originalRequest);
             } catch (err: any) {
                 console.error("Token refresh failed:", err.message);
 
-                TokenService.removeToken();
                 isRefreshing = false;
 
-                // wait for 15 seconds
-                await new Promise((resolve) => setTimeout(resolve, 25000));
+                // Clear user data and redirect to login after delay
+                localStorage.removeItem("user");
+                await new Promise((resolve) => setTimeout(resolve, 2000));
                 window.location.href = "/login";
+
+                return Promise.reject(err);
             }
         }
 

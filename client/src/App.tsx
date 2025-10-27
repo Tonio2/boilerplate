@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider, ProtectedRoute } from "@features/auth";
+import { AuthProvider, ProtectedRoute, useAuth } from "@features/auth";
 import Navbar from "@shared/components/Navbar";
 import LoadingSpinner from "@shared/components/LoadingSpinner";
 import { ToastContainer } from "react-toastify";
@@ -16,9 +16,16 @@ const Dashboard = React.lazy(() => import("@features/dashboard").then(m => ({ de
 const Profile = React.lazy(() => import("@features/profile").then(m => ({ default: m.Profile })));
 const NotFound = React.lazy(() => import("@features/error").then(m => ({ default: m.NotFound })));
 
-const App = () => (
-    <AuthProvider>
-        <Router>
+const AppContent = () => {
+    const { loading } = useAuth();
+
+    // Show loading spinner while verifying authentication
+    if (loading) {
+        return <LoadingSpinner />;
+    }
+
+    return (
+        <>
             <Navbar />
             <Suspense fallback={<LoadingSpinner />}>
                 <Routes>
@@ -58,6 +65,14 @@ const App = () => (
                 draggable
                 pauseOnHover
             />
+        </>
+    );
+};
+
+const App = () => (
+    <AuthProvider>
+        <Router>
+            <AppContent />
         </Router>
     </AuthProvider>
 );
