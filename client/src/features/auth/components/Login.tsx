@@ -27,8 +27,8 @@ const Login = () => {
             login(data.user);
             showToast("Login successful!", "success");
         } catch (error) {
+            // Error is handled by API interceptor
             console.error("Login failed", error);
-            showToast("Invalid email or password", "error");
         } finally {
             setIsLoading(false);
         }

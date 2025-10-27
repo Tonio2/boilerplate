@@ -31,13 +31,11 @@ const Register = () => {
         try {
             const { email, password } = formData;
             await API.post("/auth/register", { email, password });
+            showToast("Registration successful! Please check your email to verify your account.", "success");
             navigate("/login");
         } catch (error: any) {
-            showToast(
-                error.response?.data?.message ||
-                error.message ||
-                "Registration failed.",
-                "error");
+            // Error is handled by API interceptor
+            console.error("Registration failed", error);
         } finally {
             setLoading(false);
         }
