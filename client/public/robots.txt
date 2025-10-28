@@ -1,3 +1,24 @@
-# https://www.robotstxt.org/robotstxt.html
+# Restrictive robots.txt for SaaS application
+# Focus on app usage rather than SEO
+
 User-agent: *
-Disallow:
+
+# Disallow all authenticated/dynamic routes
+Disallow: /api/*
+Disallow: /dashboard
+Disallow: /dashboard/*
+Disallow: /settings
+Disallow: /settings/*
+Disallow: /verify-email/*
+Disallow: /reset-password/*
+Disallow: /forgot-password
+
+# Allow public pages
+Allow: /
+Allow: /login
+Allow: /register
+Allow: /privacy-policy
+Allow: /terms-of-service
+
+# Future: Add sitemap when ready
+# Sitemap: https://yourdomain.com/sitemap.xml
