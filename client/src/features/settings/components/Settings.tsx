@@ -1,27 +1,4 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-    Mail,
-    Shield,
-    CheckCircle2,
-    XCircle,
-    Send,
-    Download,
-    Trash2,
-    Loader2,
-    AlertTriangle,
-    User as UserIcon,
-} from "lucide-react";
-import { useAuth } from "@features/auth/hooks/useAuth";
-import API from "@shared/services/api";
-import { showToast } from "@shared/services/toast";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -33,7 +10,30 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@features/auth/hooks/useAuth";
+import API from "@shared/services/api";
+import { showToast } from "@shared/services/toast";
+import {
+    AlertTriangle,
+    CheckCircle2,
+    Download,
+    Loader2,
+    Mail,
+    Send,
+    Shield,
+    Trash2,
+    User as UserIcon,
+    XCircle,
+} from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Settings = () => {
     const { user, logout } = useAuth();

@@ -1,0 +1,27 @@
+# Railway Nixpacks Configuration
+# This tells Railway how to build your monorepo with separate client and server
+
+[phases.setup]
+nixPkgs = ['nodejs_20']
+
+[phases.install]
+cmds = [
+  'echo "Installing client dependencies..."',
+  'cd client && npm ci',
+  'echo "Installing server dependencies..."',
+  'cd ../server && npm ci'
+]
+
+[phases.build]
+cmds = [
+  'echo "Building client (React + Vite)..."',
+  'cd client && npm run build',
+  'echo "Building server (TypeScript)..."',
+  'cd ../server && npm run build',
+  'echo "Build complete!"',
+  'echo "Client built to: client/dist"',
+  'echo "Server built to: server/dist"'
+]
+
+[start]
+cmd = 'cd server && node dist/index.js'

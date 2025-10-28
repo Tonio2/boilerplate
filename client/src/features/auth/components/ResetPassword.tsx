@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Lock, Eye, EyeOff, Loader2, KeyRound, CheckCircle2, XCircle } from "lucide-react";
-import API from "@shared/services/api";
-import { showToast } from "@shared/services/toast";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import API from "@shared/services/api";
+import { showToast } from "@shared/services/toast";
+import { CheckCircle2, Eye, EyeOff, KeyRound, Loader2, Lock, XCircle } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ResetPassword = () => {
     const navigate = useNavigate();

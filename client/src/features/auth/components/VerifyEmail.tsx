@@ -1,8 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { CheckCircle2, XCircle, Loader2, Mail, ArrowRight } from "lucide-react";
-import API from "@shared/services/api";
-import { showToast } from "@shared/services/toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -12,7 +8,11 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import API from "@shared/services/api";
+import { showToast } from "@shared/services/toast";
+import { ArrowRight, CheckCircle2, Loader2, Mail, XCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 interface VerifyEmailResponse {
     message: string;

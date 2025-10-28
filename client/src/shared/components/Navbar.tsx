@@ -1,10 +1,5 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Menu, User as UserIcon, LogOut, LayoutDashboard, Settings } from "lucide-react";
-import { useAuth } from "@features/auth/hooks/useAuth";
-import API from "@shared/services/api";
-import { showToast } from "@shared/services/toast";
 import { ModeToggle } from "@/components/mode-toggle";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -14,8 +9,13 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useAuth } from "@features/auth/hooks/useAuth";
+import API from "@shared/services/api";
+import { showToast } from "@shared/services/toast";
+import { LayoutDashboard, LogOut, Menu, Settings, User as UserIcon } from "lucide-react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
     const { user, loading, logout } = useAuth();

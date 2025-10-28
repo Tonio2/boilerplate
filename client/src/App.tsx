@@ -1,38 +1,38 @@
-import React, { Suspense } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider, ProtectedRoute, useAuth } from "@features/auth";
-import Navbar from "@shared/components/Navbar";
 import Footer from "@shared/components/Footer";
 import LoadingSpinner from "@shared/components/LoadingSpinner";
-import { Toaster } from "@/components/ui/sonner";
-import { ThemeProvider } from "@/components/theme-provider";
+import Navbar from "@shared/components/Navbar";
+import { Suspense, lazy } from "react";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
 // Lazy-loaded components
-const Home = React.lazy(() => import("@features/home").then((m) => ({ default: m.Home })));
-const Login = React.lazy(() => import("@features/auth").then((m) => ({ default: m.Login })));
-const Register = React.lazy(() => import("@features/auth").then((m) => ({ default: m.Register })));
-const VerifyEmail = React.lazy(() =>
+const Home = lazy(() => import("@features/home").then((m) => ({ default: m.Home })));
+const Login = lazy(() => import("@features/auth").then((m) => ({ default: m.Login })));
+const Register = lazy(() => import("@features/auth").then((m) => ({ default: m.Register })));
+const VerifyEmail = lazy(() =>
     import("@features/auth").then((m) => ({ default: m.VerifyEmail }))
 );
-const ForgotPassword = React.lazy(() =>
+const ForgotPassword = lazy(() =>
     import("@features/auth").then((m) => ({ default: m.ForgotPassword }))
 );
-const ResetPassword = React.lazy(() =>
+const ResetPassword = lazy(() =>
     import("@features/auth").then((m) => ({ default: m.ResetPassword }))
 );
-const Dashboard = React.lazy(() =>
+const Dashboard = lazy(() =>
     import("@features/dashboard").then((m) => ({ default: m.Dashboard }))
 );
-const Settings = React.lazy(() =>
+const Settings = lazy(() =>
     import("@/features/settings").then((m) => ({ default: m.Settings }))
 );
-const PrivacyPolicy = React.lazy(() =>
+const PrivacyPolicy = lazy(() =>
     import("@features/legal").then((m) => ({ default: m.PrivacyPolicy }))
 );
-const TermsOfService = React.lazy(() =>
+const TermsOfService = lazy(() =>
     import("@features/legal").then((m) => ({ default: m.TermsOfService }))
 );
-const NotFound = React.lazy(() => import("@features/error").then((m) => ({ default: m.NotFound })));
+const NotFound = lazy(() => import("@features/error").then((m) => ({ default: m.NotFound })));
 
 const AppContent = () => {
     const { loading } = useAuth();
