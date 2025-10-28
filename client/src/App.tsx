@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider, ProtectedRoute, useAuth } from "@features/auth";
 import Navbar from "@shared/components/Navbar";
 import LoadingSpinner from "@shared/components/LoadingSpinner";
-import { ToastContainer } from "react-toastify";
+import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider"
 
 // Lazy-loaded components
 const Home = React.lazy(() => import("@features/home").then(m => ({ default: m.Home })));
@@ -54,27 +55,19 @@ const AppContent = () => {
                     <Route path="*" element={<NotFound />} />
                 </Routes>
             </Suspense>
-            <ToastContainer
-                position="bottom-right"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-            />
+            <Toaster />
         </>
     );
 };
 
 const App = () => (
-    <AuthProvider>
-        <Router>
-            <AppContent />
-        </Router>
-    </AuthProvider>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <AuthProvider>
+            <Router>
+                <AppContent />
+            </Router>
+        </AuthProvider>
+    </ThemeProvider>
 );
 
 export default App;

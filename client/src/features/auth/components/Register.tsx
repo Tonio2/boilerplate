@@ -1,8 +1,12 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Mail, Lock, Eye, EyeOff, Loader2, UserPlus } from "lucide-react";
 import API from "@shared/services/api";
 import { showToast } from "@shared/services/toast";
-
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Register = () => {
     const navigate = useNavigate();
@@ -12,6 +16,8 @@ const Register = () => {
         confirmPassword: "",
     });
     const [loading, setLoading] = useState<boolean>(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -21,7 +27,6 @@ const Register = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Basic client-side validation
         if (formData.password !== formData.confirmPassword) {
             showToast("Passwords do not match.", "error");
             return;
@@ -34,7 +39,6 @@ const Register = () => {
             showToast("Registration successful! Please check your email to verify your account.", "success");
             navigate("/login");
         } catch (error: any) {
-            // Error is handled by API interceptor
             console.error("Registration failed", error);
         } finally {
             setLoading(false);
@@ -42,70 +46,128 @@ const Register = () => {
     };
 
     return (
-        <div className="max-w-md mx-auto p-4 space-y-6">
-            <h1 className="text-2xl font-bold text-center">Register</h1>
+        <div className="min-h-[calc(100vh-4rem-1px)] flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
+            <Card className="w-full max-w-md">
+                <CardHeader className="space-y-1">
+                    <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
+                    <CardDescription className="text-center">
+                        Enter your information to get started
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="email">Email</Label>
+                            <div className="relative">
+                                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    placeholder="you@example.com"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    className="pl-10"
+                                    disabled={loading}
+                                    required
+                                />
+                            </div>
+                        </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Email */}
-                <div>
-                    <label htmlFor="email" className="block font-medium mb-1">
-                        Email
-                    </label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        className="w-full p-2 border rounded"
-                        placeholder="example@email.com"
-                    />
-                </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="password">Password</Label>
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    id="password"
+                                    name="password"
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="••••••••"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    className="pl-10 pr-10"
+                                    disabled={loading}
+                                    required
+                                />
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute right-1 top-1 h-8 w-8"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    disabled={loading}
+                                >
+                                    {showPassword ? (
+                                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                    ) : (
+                                        <Eye className="h-4 w-4 text-muted-foreground" />
+                                    )}
+                                    <span className="sr-only">
+                                        {showPassword ? "Hide password" : "Show password"}
+                                    </span>
+                                </Button>
+                            </div>
+                        </div>
 
-                {/* Password */}
-                <div>
-                    <label htmlFor="password" className="block font-medium mb-1">
-                        Password
-                    </label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                        className="w-full p-2 border rounded"
-                        placeholder="Enter your password"
-                    />
-                </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="confirmPassword">Confirm Password</Label>
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    id="confirmPassword"
+                                    name="confirmPassword"
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    placeholder="••••••••"
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    className="pl-10 pr-10"
+                                    disabled={loading}
+                                    required
+                                />
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute right-1 top-1 h-8 w-8"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    disabled={loading}
+                                >
+                                    {showConfirmPassword ? (
+                                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                    ) : (
+                                        <Eye className="h-4 w-4 text-muted-foreground" />
+                                    )}
+                                    <span className="sr-only">
+                                        {showConfirmPassword ? "Hide password" : "Show password"}
+                                    </span>
+                                </Button>
+                            </div>
+                        </div>
 
-                {/* Confirm Password */}
-                <div>
-                    <label htmlFor="confirmPassword" className="block font-medium mb-1">
-                        Confirm Password
-                    </label>
-                    <input
-                        type="password"
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        required
-                        className="w-full p-2 border rounded"
-                        placeholder="Confirm your password"
-                    />
-                </div>
-
-                {/* Submit Button */}
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 disabled:bg-blue-300"
-                >
-                    {loading ? "Registering..." : "Register"}
-                </button>
-            </form>
+                        <Button type="submit" className="w-full" disabled={loading}>
+                            {loading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Creating account...
+                                </>
+                            ) : (
+                                <>
+                                    <UserPlus className="mr-2 h-4 w-4" />
+                                    Register
+                                </>
+                            )}
+                        </Button>
+                    </form>
+                </CardContent>
+                <CardFooter className="flex flex-col space-y-4">
+                    <div className="text-sm text-center text-muted-foreground">
+                        Already have an account?{" "}
+                        <Link to="/login" className="text-primary font-medium hover:underline">
+                            Sign in
+                        </Link>
+                    </div>
+                </CardFooter>
+            </Card>
         </div>
     );
 };

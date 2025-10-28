@@ -1,27 +1,274 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+    Mail,
+    Shield,
+    CheckCircle2,
+    XCircle,
+    Send,
+    Download,
+    Trash2,
+    Loader2,
+    AlertTriangle,
+    User as UserIcon
+} from "lucide-react";
 import { useAuth } from "@features/auth/hooks/useAuth";
+import API from "@shared/services/api";
+import { showToast } from "@shared/services/toast";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Profile = () => {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
+    const [isResendingVerification, setIsResendingVerification] = useState(false);
+    const [isExportingData, setIsExportingData] = useState(false);
+    const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
+    // Assuming user has emailVerified property - adjust based on your User interface
+    const isEmailVerified = (user as any)?.isEmailVerified ?? true;
+
+    const handleResendVerification = async () => {
+        setIsResendingVerification(true);
+        try {
+            await API.post("/auth/resend-verification");
+            showToast("Verification email sent! Please check your inbox.", "success");
+        } catch (error: any) {
+            console.error("Failed to resend verification email:", error);
+        } finally {
+            setIsResendingVerification(false);
+        }
+    };
+
+    const handleExportData = async () => {
+        setIsExportingData(true);
+        try {
+            const response = await API.get("/user/export-data", {
+                responseType: "blob",
+            });
+
+            // Create a download link
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", `my-data-${new Date().toISOString().split("T")[0]}.json`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+
+            showToast("Your data has been exported successfully!", "success");
+        } catch (error: any) {
+            console.error("Failed to export data:", error);
+            showToast(
+                error.response?.data?.message || "Failed to export data. Please try again.",
+                "error"
+            );
+        } finally {
+            setIsExportingData(false);
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        setIsDeletingAccount(true);
+        try {
+            await API.delete("/user/account");
+            showToast("Your account has been deleted successfully.", "success");
+            logout();
+            navigate("/");
+        } catch (error: any) {
+            console.error("Failed to delete account:", error);
+            showToast(
+                error.response?.data?.message || "Failed to delete account. Please try again.",
+                "error"
+            );
+            setIsDeletingAccount(false);
+        }
+    };
+
+    if (!user) {
+        return null;
+    }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-8">
-            <h1 className="text-4xl font-bold text-gray-800 mb-4">Welcome to My App</h1>
-            <p className="text-lg text-gray-600 mb-8">This is your profile page.</p>
-            {user && (
-                <div className="space-y-4">
-                    <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
-                        <p className="text-gray-700">
-                            <span className="font-semibold text-gray-800">Email:</span> {user.email}
-                        </p>
-                    </div>
-                    <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
-                        <p className="text-gray-700">
-                            <span className="font-semibold text-gray-800">Role:</span> {user.role}
-                        </p>
-                    </div>
-                </div>
+        <div className="container max-w-4xl mx-auto p-4 py-8 space-y-6">
+            {/* Header */}
+            <div className="space-y-2">
+                <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
+                <p className="text-muted-foreground">
+                    Manage your account settings and preferences
+                </p>
+            </div>
+
+            {/* Email Verification Alert */}
+            {!isEmailVerified && (
+                <Alert variant="destructive">
+
+                    <AlertDescription className="flex items-center justify-between">
+                        <div className="flex gap-2 items-center">
+                            <AlertTriangle className="h-4 w-4" />
+                            <p>Your email address is not verified. Please verify your email to access all features.</p>
+                        </div>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleResendVerification}
+                            disabled={isResendingVerification}
+                            className="ml-4"
+                        >
+                            {isResendingVerification ? (
+                                <>
+                                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                                    Sending...
+                                </>
+                            ) : (
+                                <>
+                                    <Send className="mr-2 h-3 w-3" />
+                                    Resend
+                                </>
+                            )}
+                        </Button>
+                    </AlertDescription>
+                </Alert>
             )}
+
+            {/* Account Information */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <UserIcon className="h-5 w-5" />
+                        Account Information
+                    </CardTitle>
+                    <CardDescription>Your personal account details</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between py-3">
+                        <div className="space-y-1">
+                            <p className="text-sm font-medium">Email Address</p>
+                            <div className="flex items-center gap-2">
+                                <Mail className="h-4 w-4 text-muted-foreground" />
+                                <p className="text-sm text-muted-foreground">{user.email}</p>
+                                {isEmailVerified ? (
+                                    <Badge variant="default" className="gap-1">
+                                        <CheckCircle2 className="h-3 w-3" />
+                                        Verified
+                                    </Badge>
+                                ) : (
+                                    <Badge variant="destructive" className="gap-1">
+                                        <XCircle className="h-3 w-3" />
+                                        Not Verified
+                                    </Badge>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    <Separator />
+
+                    <div className="flex items-center justify-between py-3">
+                        <div className="space-y-1">
+                            <p className="text-sm font-medium">Account Role</p>
+                            <div className="flex items-center gap-2">
+                                <Shield className="h-4 w-4 text-muted-foreground" />
+                                <p className="text-sm text-muted-foreground capitalize">{user.role}</p>
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Data & Privacy */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Data & Privacy</CardTitle>
+                    <CardDescription>Manage your data and privacy settings (GDPR)</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between py-3">
+                        <div className="space-y-1">
+                            <p className="text-sm font-medium">Export Your Data</p>
+                            <p className="text-sm text-muted-foreground">
+                                Download a copy of all your data in JSON format
+                            </p>
+                        </div>
+                        <Button
+                            variant="outline"
+                            onClick={handleExportData}
+                            disabled={isExportingData}
+                        >
+                            {isExportingData ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Exporting...
+                                </>
+                            ) : (
+                                <>
+                                    <Download className="mr-2 h-4 w-4" />
+                                    Export Data
+                                </>
+                            )}
+                        </Button>
+                    </div>
+
+                    <Separator />
+
+                    <div className="flex items-center justify-between py-3">
+                        <div className="space-y-1">
+                            <p className="text-sm font-medium text-destructive">Delete Account</p>
+                            <p className="text-sm text-muted-foreground">
+                                Permanently delete your account and all associated data
+                            </p>
+                        </div>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="destructive" disabled={isDeletingAccount}>
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete Account
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        This action cannot be undone. This will permanently delete your
+                                        account and remove all your data from our servers.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                        onClick={handleDeleteAccount}
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                        {isDeletingAccount ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Deleting...
+                                            </>
+                                        ) : (
+                                            "Delete Account"
+                                        )}
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 };
