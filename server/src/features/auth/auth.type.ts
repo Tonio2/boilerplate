@@ -3,6 +3,7 @@ import { Request } from 'express';
 export interface DecodedToken {
   id: string;
   role: string;
+  isEmailVerified: boolean;
   iat?: number;
   exp?: number;
 }

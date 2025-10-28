@@ -19,6 +19,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -32,12 +35,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-const Profile = () => {
+const Settings = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [isResendingVerification, setIsResendingVerification] = useState(false);
     const [isExportingData, setIsExportingData] = useState(false);
     const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+    const [deletePassword, setDeletePassword] = useState("");
+    const [confirmDeletion, setConfirmDeletion] = useState(false);
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
     // Assuming user has emailVerified property - adjust based on your User interface
     const isEmailVerified = (user as any)?.isEmailVerified ?? true;
@@ -57,11 +63,12 @@ const Profile = () => {
     const handleExportData = async () => {
         setIsExportingData(true);
         try {
-            const response = await API.get("/user/export-data", {
+            const response = await API.get("/auth/export-data", {
                 responseType: "blob",
             });
 
             // Create a download link
+            console.log(response.data)
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement("a");
             link.href = url;
@@ -84,9 +91,24 @@ const Profile = () => {
     };
 
     const handleDeleteAccount = async () => {
+        if (!deletePassword) {
+            showToast("Please enter your password to confirm deletion.", "error");
+            return;
+        }
+
+        if (!confirmDeletion) {
+            showToast("Please confirm that you want to delete your account.", "error");
+            return;
+        }
+
         setIsDeletingAccount(true);
         try {
-            await API.delete("/user/account");
+            await API.delete("/auth/delete-account", {
+                data: {
+                    password: deletePassword,
+                    confirmDeletion: confirmDeletion
+                }
+            });
             showToast("Your account has been deleted successfully.", "success");
             logout();
             navigate("/");
@@ -100,6 +122,12 @@ const Profile = () => {
         }
     };
 
+    const handleCloseDeleteDialog = () => {
+        setShowDeleteDialog(false);
+        setDeletePassword("");
+        setConfirmDeletion(false);
+    };
+
     if (!user) {
         return null;
     }
@@ -108,7 +136,7 @@ const Profile = () => {
         <div className="container max-w-4xl mx-auto p-4 py-8 space-y-6">
             {/* Header */}
             <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
+                <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
                 <p className="text-muted-foreground">
                     Manage your account settings and preferences
                 </p>
@@ -233,7 +261,7 @@ const Profile = () => {
                                 Permanently delete your account and all associated data
                             </p>
                         </div>
-                        <AlertDialog>
+                        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
                             <AlertDialogTrigger asChild>
                                 <Button variant="destructive" disabled={isDeletingAccount}>
                                     <Trash2 className="mr-2 h-4 w-4" />
@@ -248,11 +276,44 @@ const Profile = () => {
                                         account and remove all your data from our servers.
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
+
+                                <div className="space-y-4 py-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="delete-password">Confirm your password</Label>
+                                        <Input
+                                            id="delete-password"
+                                            type="password"
+                                            placeholder="Enter your password"
+                                            value={deletePassword}
+                                            onChange={(e) => setDeletePassword(e.target.value)}
+                                            disabled={isDeletingAccount}
+                                        />
+                                    </div>
+
+                                    <div className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id="confirm-deletion"
+                                            checked={confirmDeletion}
+                                            onCheckedChange={(checked: boolean) => setConfirmDeletion(checked)}
+                                            disabled={isDeletingAccount}
+                                        />
+                                        <Label
+                                            htmlFor="confirm-deletion"
+                                            className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        >
+                                            I understand that this action cannot be undone
+                                        </Label>
+                                    </div>
+                                </div>
+
                                 <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogCancel onClick={handleCloseDeleteDialog} disabled={isDeletingAccount}>
+                                        Cancel
+                                    </AlertDialogCancel>
                                     <AlertDialogAction
                                         onClick={handleDeleteAccount}
                                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                        disabled={isDeletingAccount || !deletePassword || !confirmDeletion}
                                     >
                                         {isDeletingAccount ? (
                                             <>
@@ -273,4 +334,4 @@ const Profile = () => {
     );
 };
 
-export default Profile;
+export default Settings;

@@ -14,7 +14,7 @@ const VerifyEmail = React.lazy(() => import("@features/auth").then(m => ({ defau
 const ForgotPassword = React.lazy(() => import("@features/auth").then(m => ({ default: m.ForgotPassword })));
 const ResetPassword = React.lazy(() => import("@features/auth").then(m => ({ default: m.ResetPassword })));
 const Dashboard = React.lazy(() => import("@features/dashboard").then(m => ({ default: m.Dashboard })));
-const Profile = React.lazy(() => import("@features/profile").then(m => ({ default: m.Profile })));
+const Settings = React.lazy(() => import("@/features/settings").then(m => ({ default: m.Settings })));
 const NotFound = React.lazy(() => import("@features/error").then(m => ({ default: m.NotFound })));
 
 const AppContent = () => {
@@ -45,10 +45,10 @@ const AppContent = () => {
                         }
                     />
                     <Route
-                        path="/profile"
+                        path="/settings"
                         element={
                             <ProtectedRoute>
-                                <Profile />
+                                <Settings />
                             </ProtectedRoute>
                         }
                     />

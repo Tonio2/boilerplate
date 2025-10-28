@@ -13,8 +13,8 @@ import { db } from '@config/db';
 
 import { users, refreshTokens } from './auth.schema';
 
-const createTokens = (userId: string, role: string) => {
-    const accessToken = jwt.sign({ id: userId, role }, env.JWT_ACCESS_SECRET!, {
+const createTokens = (userId: string, role: string, isEmailVerified: boolean) => {
+    const accessToken = jwt.sign({ id: userId, role, isEmailVerified }, env.JWT_ACCESS_SECRET!, {
         expiresIn: '15m'
     });
     const refreshToken = jwt.sign({ id: userId }, env.JWT_REFRESH_SECRET!, {
@@ -120,15 +120,8 @@ export const login = async (req: Request, res: Response) => {
         throw ApiError.unauthorized('Invalid email or password');
     }
 
-    // Check email is verified
-    if (!user.isEmailVerified) {
-        throw ApiError.forbidden(
-            'Please verify your email before logging in. Check your inbox or request a new verification email.'
-        );
-    }
-
     // Create tokens
-    const { accessToken, refreshToken } = createTokens(user.id, user.role);
+    const { accessToken, refreshToken } = createTokens(user.id, user.role, user.isEmailVerified);
 
     // Store hashed refresh token in DB
     const hashedRefreshToken = crypto
@@ -239,7 +232,7 @@ export const refresh = async (req: Request, res: Response) => {
     }
 
     // Create new tokens
-    const { accessToken, refreshToken: newRefreshToken } = createTokens(user.id, user.role);
+    const { accessToken, refreshToken: newRefreshToken } = createTokens(user.id, user.role, user.isEmailVerified);
 
     // Store new refresh token
     const hashedNewRefreshToken = crypto
@@ -473,19 +466,9 @@ export const verifyEmail = async (req: Request, res: Response) => {
 // ============================================
 // RESEND VERIFICATION EMAIL
 // ============================================
-export const resendVerificationEmail = async (req: Request, res: Response) => {
-    const schema = Joi.object({
-        email: Joi.string().email().required()
-    });
-
-    const { error } = schema.validate(req.body);
-    if (error) {
-        throw ApiError.badRequest('Validation failed', error.details);
-    }
-
-    const { email } = req.body;
+export const resendVerificationEmail = async (req: any, res: Response) => {
     const user = await db.query.users.findFirst({
-        where: eq(users.email, email)
+        where: eq(users.id, req.user.id)
     });
 
     if (!user) {
@@ -516,5 +499,89 @@ export const resendVerificationEmail = async (req: Request, res: Response) => {
     res.status(200).json({
         success: true,
         message: 'Verification email sent successfully. Please check your inbox.'
+    });
+};
+
+// ============================================
+// EXPORT USER DATA
+// ============================================
+export const exportUserData = async (req: any, res: Response) => {
+    // Find user with all their data
+    const user = await db.query.users.findFirst({
+        where: eq(users.id, req.user.id)
+    });
+
+    if (!user) {
+        throw ApiError.notFound('User not found');
+    }
+
+    // Get all refresh tokens for this user
+    const userRefreshTokens = await db.query.refreshTokens.findMany({
+        where: eq(refreshTokens.userId, user.id)
+    });
+
+    // Prepare exportable data (exclude sensitive info like password and tokens)
+    const exportData = {
+        user: {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            isEmailVerified: user.isEmailVerified,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt
+        },
+        activeSessions: userRefreshTokens.length,
+        exportDate: new Date().toISOString()
+    };
+
+    res.json(exportData);
+};
+
+// ============================================
+// DELETE ACCOUNT
+// ============================================
+export const deleteAccount = async (req: any, res: Response) => {
+    const schema = Joi.object({
+        password: Joi.string().required(),
+        confirmDeletion: Joi.boolean().valid(true).required()
+    });
+
+    const { error } = schema.validate(req.body);
+    if (error) {
+        throw ApiError.badRequest('Validation failed', error.details);
+    }
+
+    const { password } = req.body;
+
+    // Find user
+    const user = await db.query.users.findFirst({
+        where: eq(users.id, req.user.id)
+    });
+
+    if (!user) {
+        throw ApiError.notFound('User not found');
+    }
+
+    // Verify password
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+        throw ApiError.unauthorized('Invalid password');
+    }
+
+    // Delete all refresh tokens first (foreign key constraint)
+    await db.delete(refreshTokens)
+        .where(eq(refreshTokens.userId, user.id));
+
+    // Delete user account
+    await db.delete(users)
+        .where(eq(users.id, user.id));
+
+    // Clear cookies
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+
+    res.json({
+        success: true,
+        message: 'Account deleted successfully'
     });
 };

@@ -90,3 +90,28 @@ export const optionalAuthenticate = (
 
   next();
 };
+
+/**
+ * Middleware to require email verification
+ * Must be used AFTER authenticate middleware
+ *
+ * @example
+ * router.get('/protected', authenticate, requireEmailVerified, protectedController);
+ */
+export const requireEmailVerified = (
+  req: AuthenticatedRequest,
+  _res: Response,
+  next: NextFunction
+) => {
+  if (!req.user) {
+    throw ApiError.unauthorized('Authentication required');
+  }
+
+  if (!req.user.isEmailVerified) {
+    throw ApiError.forbidden(
+      'Email verification required. Please verify your email address to access this resource.'
+    );
+  }
+
+  next();
+};

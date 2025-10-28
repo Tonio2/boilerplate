@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, User as UserIcon, LogOut, LayoutDashboard, UserCircle } from "lucide-react";
+import { Menu, User as UserIcon, LogOut, LayoutDashboard, Settings } from "lucide-react";
 import { useAuth } from "@features/auth/hooks/useAuth";
 import API from "@shared/services/api";
 import { showToast } from "@shared/services/toast";
@@ -80,15 +80,15 @@ const Navbar = () => {
                                     </DropdownMenuLabel>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem asChild>
-                                        <Link to="/profile" className="cursor-pointer">
-                                            <UserCircle className="mr-2 h-4 w-4" />
-                                            <span>Profile</span>
-                                        </Link>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem asChild>
                                         <Link to="/dashboard" className="cursor-pointer">
                                             <LayoutDashboard className="mr-2 h-4 w-4" />
                                             <span>Dashboard</span>
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link to="/settings" className="cursor-pointer">
+                                            <Settings className="mr-2 h-4 w-4" />
+                                            <span>Settings</span>
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
@@ -155,9 +155,9 @@ const Navbar = () => {
                                         </div>
 
                                         <div className="w-full"><Button variant="ghost" asChild className="justify-start w-full" onClick={() => setIsOpen(false)}>
-                                            <Link to="/profile">
-                                                <UserCircle className="mr-2 h-4 w-4" />
-                                                Profile
+                                            <Link to="/settings">
+                                                <Settings className="mr-2 h-4 w-4" />
+                                                Settings
                                             </Link>
                                         </Button>
                                         </div>
