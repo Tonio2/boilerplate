@@ -1,2 +1,2 @@
 // Profile Feature Barrel Export
-export { default as Settings } from './components/Settings';
+export { default as Settings } from "./components/Settings";

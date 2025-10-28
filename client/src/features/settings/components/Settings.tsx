@@ -10,7 +10,7 @@ import {
     Trash2,
     Loader2,
     AlertTriangle,
-    User as UserIcon
+    User as UserIcon,
 } from "lucide-react";
 import { useAuth } from "@features/auth/hooks/useAuth";
 import API from "@shared/services/api";
@@ -68,7 +68,7 @@ const Settings = () => {
             });
 
             // Create a download link
-            console.log(response.data)
+            console.log(response.data);
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement("a");
             link.href = url;
@@ -106,8 +106,8 @@ const Settings = () => {
             await API.delete("/auth/delete-account", {
                 data: {
                     password: deletePassword,
-                    confirmDeletion: confirmDeletion
-                }
+                    confirmDeletion: confirmDeletion,
+                },
             });
             showToast("Your account has been deleted successfully.", "success");
             logout();
@@ -133,7 +133,7 @@ const Settings = () => {
     }
 
     return (
-        <div className="container max-w-4xl mx-auto p-4 py-8 space-y-6">
+        <div className="container mx-auto max-w-4xl space-y-6 p-4 py-8">
             {/* Header */}
             <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
@@ -145,11 +145,13 @@ const Settings = () => {
             {/* Email Verification Alert */}
             {!isEmailVerified && (
                 <Alert variant="destructive">
-
                     <AlertDescription className="flex items-center justify-between">
-                        <div className="flex gap-2 items-center">
+                        <div className="flex items-center gap-2">
                             <AlertTriangle className="h-4 w-4" />
-                            <p>Your email address is not verified. Please verify your email to access all features.</p>
+                            <p>
+                                Your email address is not verified. Please verify your email to
+                                access all features.
+                            </p>
                         </div>
                         <Button
                             variant="outline"
@@ -188,8 +190,8 @@ const Settings = () => {
                         <div className="space-y-1">
                             <p className="text-sm font-medium">Email Address</p>
                             <div className="flex items-center gap-2">
-                                <Mail className="h-4 w-4 text-muted-foreground" />
-                                <p className="text-sm text-muted-foreground">{user.email}</p>
+                                <Mail className="text-muted-foreground h-4 w-4" />
+                                <p className="text-muted-foreground text-sm">{user.email}</p>
                                 {isEmailVerified ? (
                                     <Badge variant="default" className="gap-1">
                                         <CheckCircle2 className="h-3 w-3" />
@@ -211,8 +213,10 @@ const Settings = () => {
                         <div className="space-y-1">
                             <p className="text-sm font-medium">Account Role</p>
                             <div className="flex items-center gap-2">
-                                <Shield className="h-4 w-4 text-muted-foreground" />
-                                <p className="text-sm text-muted-foreground capitalize">{user.role}</p>
+                                <Shield className="text-muted-foreground h-4 w-4" />
+                                <p className="text-muted-foreground text-sm capitalize">
+                                    {user.role}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -229,7 +233,7 @@ const Settings = () => {
                     <div className="flex items-center justify-between py-3">
                         <div className="space-y-1">
                             <p className="text-sm font-medium">Export Your Data</p>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-muted-foreground text-sm">
                                 Download a copy of all your data in JSON format
                             </p>
                         </div>
@@ -256,8 +260,8 @@ const Settings = () => {
 
                     <div className="flex items-center justify-between py-3">
                         <div className="space-y-1">
-                            <p className="text-sm font-medium text-destructive">Delete Account</p>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-destructive text-sm font-medium">Delete Account</p>
+                            <p className="text-muted-foreground text-sm">
                                 Permanently delete your account and all associated data
                             </p>
                         </div>
@@ -272,14 +276,16 @@ const Settings = () => {
                                 <AlertDialogHeader>
                                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        This action cannot be undone. This will permanently delete your
-                                        account and remove all your data from our servers.
+                                        This action cannot be undone. This will permanently delete
+                                        your account and remove all your data from our servers.
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
 
                                 <div className="space-y-4 py-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="delete-password">Confirm your password</Label>
+                                        <Label htmlFor="delete-password">
+                                            Confirm your password
+                                        </Label>
                                         <Input
                                             id="delete-password"
                                             type="password"
@@ -294,12 +300,14 @@ const Settings = () => {
                                         <Checkbox
                                             id="confirm-deletion"
                                             checked={confirmDeletion}
-                                            onCheckedChange={(checked: boolean) => setConfirmDeletion(checked)}
+                                            onCheckedChange={(checked: boolean) =>
+                                                setConfirmDeletion(checked)
+                                            }
                                             disabled={isDeletingAccount}
                                         />
                                         <Label
                                             htmlFor="confirm-deletion"
-                                            className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                            className="text-sm leading-none font-normal peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                         >
                                             I understand that this action cannot be undone
                                         </Label>
@@ -307,13 +315,18 @@ const Settings = () => {
                                 </div>
 
                                 <AlertDialogFooter>
-                                    <AlertDialogCancel onClick={handleCloseDeleteDialog} disabled={isDeletingAccount}>
+                                    <AlertDialogCancel
+                                        onClick={handleCloseDeleteDialog}
+                                        disabled={isDeletingAccount}
+                                    >
                                         Cancel
                                     </AlertDialogCancel>
                                     <AlertDialogAction
                                         onClick={handleDeleteAccount}
                                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                        disabled={isDeletingAccount || !deletePassword || !confirmDeletion}
+                                        disabled={
+                                            isDeletingAccount || !deletePassword || !confirmDeletion
+                                        }
                                     >
                                         {isDeletingAccount ? (
                                             <>

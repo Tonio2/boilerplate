@@ -6,7 +6,14 @@ import { showToast } from "@shared/services/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState<string>("");
@@ -34,10 +41,12 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div className="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
+        <div className="from-background to-muted flex flex-1 items-center justify-center bg-gradient-to-br p-4">
             <Card className="w-full max-w-md">
                 <CardHeader className="space-y-1">
-                    <CardTitle className="text-2xl font-bold text-center">Forgot Password</CardTitle>
+                    <CardTitle className="text-center text-2xl font-bold">
+                        Forgot Password
+                    </CardTitle>
                     <CardDescription className="text-center">
                         Enter your email address and we'll send you a link to reset your password
                     </CardDescription>
@@ -47,7 +56,7 @@ const ForgotPassword = () => {
                         <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
                             <div className="relative">
-                                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                <Mail className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
                                 <Input
                                     id="email"
                                     type="email"

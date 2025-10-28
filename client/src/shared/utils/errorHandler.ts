@@ -4,38 +4,39 @@
  * Handles API errors and maps them to user-friendly messages
  */
 
-import { ErrorCode, ParsedError } from '@shared/types/errors';
+import { ErrorCode, ParsedError } from "@shared/types/errors";
 
 /**
  * User-friendly error messages mapping
  */
 const ERROR_MESSAGES: Record<ErrorCode, string> = {
     // Network Errors
-    [ErrorCode.NETWORK_ERROR]: 'Unable to connect to the server. Please check your internet connection.',
-    [ErrorCode.TIMEOUT_ERROR]: 'Request timed out. Please try again.',
+    [ErrorCode.NETWORK_ERROR]:
+        "Unable to connect to the server. Please check your internet connection.",
+    [ErrorCode.TIMEOUT_ERROR]: "Request timed out. Please try again.",
 
     // Authentication Errors
-    [ErrorCode.UNAUTHORIZED]: 'Invalid credentials. Please check your email and password.',
-    [ErrorCode.FORBIDDEN]: 'You do not have permission to perform this action.',
-    [ErrorCode.SESSION_EXPIRED]: 'Your session has expired. Please log in again.',
+    [ErrorCode.UNAUTHORIZED]: "Invalid credentials. Please check your email and password.",
+    [ErrorCode.FORBIDDEN]: "You do not have permission to perform this action.",
+    [ErrorCode.SESSION_EXPIRED]: "Your session has expired. Please log in again.",
 
     // Validation Errors
-    [ErrorCode.VALIDATION_ERROR]: 'Please check your input and try again.',
-    [ErrorCode.BAD_REQUEST]: 'Invalid request. Please check your input.',
+    [ErrorCode.VALIDATION_ERROR]: "Please check your input and try again.",
+    [ErrorCode.BAD_REQUEST]: "Invalid request. Please check your input.",
 
     // Server Errors
-    [ErrorCode.INTERNAL_SERVER_ERROR]: 'Something went wrong on our end. Please try again later.',
-    [ErrorCode.SERVICE_UNAVAILABLE]: 'Service is temporarily unavailable. Please try again later.',
+    [ErrorCode.INTERNAL_SERVER_ERROR]: "Something went wrong on our end. Please try again later.",
+    [ErrorCode.SERVICE_UNAVAILABLE]: "Service is temporarily unavailable. Please try again later.",
 
     // Resource Errors
-    [ErrorCode.NOT_FOUND]: 'The requested resource was not found.',
-    [ErrorCode.CONFLICT]: 'This resource already exists.',
+    [ErrorCode.NOT_FOUND]: "The requested resource was not found.",
+    [ErrorCode.CONFLICT]: "This resource already exists.",
 
     // Rate Limiting
-    [ErrorCode.TOO_MANY_REQUESTS]: 'Too many requests. Please slow down and try again later.',
+    [ErrorCode.TOO_MANY_REQUESTS]: "Too many requests. Please slow down and try again later.",
 
     // Unknown
-    [ErrorCode.UNKNOWN_ERROR]: 'An unexpected error occurred. Please try again.',
+    [ErrorCode.UNKNOWN_ERROR]: "An unexpected error occurred. Please try again.",
 };
 
 /**
@@ -72,17 +73,17 @@ const mapStatusToErrorCode = (status: number): ErrorCode => {
 export const parseError = (error: any): ParsedError => {
     // Network error (no response)
     if (!error.response) {
-        if (error.code === 'ECONNABORTED') {
+        if (error.code === "ECONNABORTED") {
             return {
                 code: ErrorCode.TIMEOUT_ERROR,
-                message: 'Request timeout',
+                message: "Request timeout",
                 userMessage: ERROR_MESSAGES[ErrorCode.TIMEOUT_ERROR],
             };
         }
 
         return {
             code: ErrorCode.NETWORK_ERROR,
-            message: error.message || 'Network error',
+            message: error.message || "Network error",
             userMessage: ERROR_MESSAGES[ErrorCode.NETWORK_ERROR],
         };
     }
@@ -143,5 +144,7 @@ export const isRetryableError = (error: any): boolean => {
  */
 export const isAuthError = (error: any): boolean => {
     const parsed = parseError(error);
-    return [ErrorCode.UNAUTHORIZED, ErrorCode.FORBIDDEN, ErrorCode.SESSION_EXPIRED].includes(parsed.code);
+    return [ErrorCode.UNAUTHORIZED, ErrorCode.FORBIDDEN, ErrorCode.SESSION_EXPIRED].includes(
+        parsed.code
+    );
 };

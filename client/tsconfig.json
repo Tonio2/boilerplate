@@ -4,10 +4,7 @@
         "outDir": "build/lib",
         "target": "esnext",
         "module": "esnext",
-        "lib": [
-            "DOM",
-            "ESNext"
-        ],
+        "lib": ["DOM", "ESNext"],
         "sourceMap": true,
         "importHelpers": true,
         "declaration": true,
@@ -32,16 +29,10 @@
         "allowSyntheticDefaultImports": true,
         "experimentalDecorators": true,
         "types": ["node", "vite/client"],
-		"isolatedModules": true,
-		"useDefineForClassFields": true,
-		"skipLibCheck": true,
+        "isolatedModules": true,
+        "useDefineForClassFields": true,
+        "skipLibCheck": true
     },
-    "include": [
-        "src/**/*"
-    ],
-    "exclude": [
-        "node_modules",
-        "build",
-        "scripts"
-    ]
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "build", "scripts"]
 }

@@ -7,7 +7,14 @@ import { showToast } from "@shared/services/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
 
 const Login = () => {
     const { user, login } = useAuth();
@@ -46,10 +53,10 @@ const Login = () => {
     }
 
     return (
-        <div className="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
+        <div className="from-background to-muted flex flex-1 items-center justify-center bg-gradient-to-br p-4">
             <Card className="w-full max-w-md">
                 <CardHeader className="space-y-1">
-                    <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>
+                    <CardTitle className="text-center text-2xl font-bold">Welcome back</CardTitle>
                     <CardDescription className="text-center">
                         Enter your credentials to access your account
                     </CardDescription>
@@ -59,7 +66,7 @@ const Login = () => {
                         <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
                             <div className="relative">
-                                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                <Mail className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
                                 <Input
                                     id="email"
                                     type="email"
@@ -77,34 +84,34 @@ const Login = () => {
                                 <Label htmlFor="password">Password</Label>
                                 <Link
                                     to="/forgot-password"
-                                    className="text-xs text-primary hover:underline"
+                                    className="text-primary text-xs hover:underline"
                                 >
                                     Forgot password?
                                 </Link>
                             </div>
                             <div className="relative">
-                                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                <Lock className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
                                 <Input
                                     id="password"
                                     type={showPassword ? "text" : "password"}
                                     placeholder="••••••••"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="pl-10 pr-10"
+                                    className="pr-10 pl-10"
                                     disabled={isLoading}
                                 />
                                 <Button
                                     type="button"
                                     variant="ghost"
                                     size="icon"
-                                    className="absolute right-1 top-1 h-8 w-8"
+                                    className="absolute top-1 right-1 h-8 w-8"
                                     onClick={() => setShowPassword(!showPassword)}
                                     disabled={isLoading}
                                 >
                                     {showPassword ? (
-                                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                        <EyeOff className="text-muted-foreground h-4 w-4" />
                                     ) : (
-                                        <Eye className="h-4 w-4 text-muted-foreground" />
+                                        <Eye className="text-muted-foreground h-4 w-4" />
                                     )}
                                     <span className="sr-only">
                                         {showPassword ? "Hide password" : "Show password"}
@@ -126,7 +133,7 @@ const Login = () => {
                     </form>
                 </CardContent>
                 <CardFooter className="flex flex-col space-y-4">
-                    <div className="text-sm text-center text-muted-foreground">
+                    <div className="text-muted-foreground text-center text-sm">
                         Don't have an account?{" "}
                         <Link to="/register" className="text-primary font-medium hover:underline">
                             Sign up

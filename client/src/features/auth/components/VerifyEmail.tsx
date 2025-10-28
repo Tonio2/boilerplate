@@ -4,7 +4,14 @@ import { CheckCircle2, XCircle, Loader2, Mail, ArrowRight } from "lucide-react";
 import API from "@shared/services/api";
 import { showToast } from "@shared/services/toast";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface VerifyEmailResponse {
@@ -29,7 +36,9 @@ const VerifyEmail = () => {
             }
 
             try {
-                const { data } = await API.post<VerifyEmailResponse>("/auth/verify-email", { token });
+                const { data } = await API.post<VerifyEmailResponse>("/auth/verify-email", {
+                    token,
+                });
                 setState("success");
                 setMessage(data.message || "Email verified successfully!");
                 showToast(data.message, "success");
@@ -45,10 +54,10 @@ const VerifyEmail = () => {
     }, []);
 
     return (
-        <div className="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
+        <div className="from-background to-muted flex flex-1 items-center justify-center bg-gradient-to-br p-4">
             <Card className="w-full max-w-md">
                 <CardHeader className="space-y-1">
-                    <CardTitle className="text-2xl font-bold text-center">
+                    <CardTitle className="text-center text-2xl font-bold">
                         {state === "loading" && "Verifying Email"}
                         {state === "success" && "Email Verified"}
                         {state === "error" && "Verification Failed"}
@@ -63,17 +72,17 @@ const VerifyEmail = () => {
                 <CardContent className="flex flex-col items-center space-y-4">
                     {state === "loading" && (
                         <div className="flex flex-col items-center space-y-4 py-8">
-                            <Loader2 className="h-16 w-16 animate-spin text-primary" />
-                            <p className="text-sm text-muted-foreground">Verifying your email...</p>
+                            <Loader2 className="text-primary h-16 w-16 animate-spin" />
+                            <p className="text-muted-foreground text-sm">Verifying your email...</p>
                         </div>
                     )}
 
                     {state === "success" && (
                         <div className="flex flex-col items-center space-y-4 py-8">
-                            <div className="rounded-full bg-green-100 dark:bg-green-900/20 p-3">
+                            <div className="rounded-full bg-green-100 p-3 dark:bg-green-900/20">
                                 <CheckCircle2 className="h-16 w-16 text-green-600 dark:text-green-500" />
                             </div>
-                            <Alert className="border-green-200 bg-green-50 dark:bg-green-900/10 dark:border-green-900/50">
+                            <Alert className="border-green-200 bg-green-50 dark:border-green-900/50 dark:bg-green-900/10">
                                 <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-500" />
                                 <AlertDescription className="text-green-800 dark:text-green-400">
                                     {message}
@@ -84,14 +93,12 @@ const VerifyEmail = () => {
 
                     {state === "error" && (
                         <div className="flex flex-col items-center space-y-4 py-8">
-                            <div className="rounded-full bg-red-100 dark:bg-red-900/20 p-3">
+                            <div className="rounded-full bg-red-100 p-3 dark:bg-red-900/20">
                                 <XCircle className="h-16 w-16 text-red-600 dark:text-red-500" />
                             </div>
                             <Alert variant="destructive">
                                 <XCircle className="h-4 w-4" />
-                                <AlertDescription>
-                                    {message}
-                                </AlertDescription>
+                                <AlertDescription>{message}</AlertDescription>
                             </Alert>
                         </div>
                     )}
@@ -116,9 +123,7 @@ const VerifyEmail = () => {
                                 </Link>
                             </Button>
                             <Button asChild variant="outline" className="w-full">
-                                <Link to="/">
-                                    Go to Home
-                                </Link>
+                                <Link to="/">Go to Home</Link>
                             </Button>
                         </div>
                     )}

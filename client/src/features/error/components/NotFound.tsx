@@ -2,17 +2,27 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Home, ArrowLeft, Search, FileQuestion } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
 
 const NotFound = () => {
     return (
-        <div className="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
+        <div className="from-background to-muted flex flex-1 items-center justify-center bg-gradient-to-br p-4">
             <Card className="w-full max-w-md text-center">
                 <CardHeader className="space-y-4 pt-8">
                     <div className="flex justify-center">
                         <div className="relative">
-                            <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
-                            <FileQuestion className="relative h-24 w-24 text-primary mx-auto" strokeWidth={1.5} />
+                            <div className="bg-primary/20 absolute inset-0 rounded-full blur-3xl" />
+                            <FileQuestion
+                                className="text-primary relative mx-auto h-24 w-24"
+                                strokeWidth={1.5}
+                            />
                         </div>
                     </div>
                     <div className="space-y-2">
@@ -22,8 +32,9 @@ const NotFound = () => {
                 </CardHeader>
 
                 <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                        Oops! The page you're looking for doesn't exist. It might have been moved or deleted.
+                    <p className="text-muted-foreground text-sm">
+                        Oops! The page you're looking for doesn't exist. It might have been moved or
+                        deleted.
                     </p>
                 </CardContent>
 

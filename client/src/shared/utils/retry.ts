@@ -2,8 +2,8 @@
  * Retry Utility with Exponential Backoff
  */
 
-import { AxiosError, AxiosRequestConfig } from 'axios';
-import { isRetryableError } from './errorHandler';
+import { AxiosError, AxiosRequestConfig } from "axios";
+import { isRetryableError } from "./errorHandler";
 
 export interface RetryConfig {
     maxRetries: number;
@@ -48,7 +48,7 @@ export const shouldRetryRequest = (
 
     // Don't retry if no response (might be CORS or network issue that won't resolve)
     // Exception: timeout errors should be retried
-    if (!error.response && error.code !== 'ECONNABORTED') {
+    if (!error.response && error.code !== "ECONNABORTED") {
         return false;
     }
 
@@ -87,7 +87,7 @@ export const getRetryCount = (axiosConfig: AxiosRequestConfig & { _retry?: numbe
  * Sleep utility for retry delays
  */
 export const sleep = (ms: number): Promise<void> => {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
 export default DEFAULT_RETRY_CONFIG;

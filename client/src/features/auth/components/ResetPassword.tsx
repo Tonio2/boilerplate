@@ -77,8 +77,7 @@ const ResetPassword = () => {
         } catch (error: any) {
             console.error("Reset password failed:", error);
             showToast(
-                error.response?.data?.message ||
-                "Failed to reset password. Please try again.",
+                error.response?.data?.message || "Failed to reset password. Please try again.",
                 "error"
             );
         } finally {
@@ -90,10 +89,10 @@ const ResetPassword = () => {
     const showRequirements = formData.password.length > 0;
 
     return (
-        <div className="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
+        <div className="from-background to-muted flex flex-1 items-center justify-center bg-gradient-to-br p-4">
             <Card className="w-full max-w-md">
                 <CardHeader className="space-y-1">
-                    <CardTitle className="text-2xl font-bold text-center">Reset Password</CardTitle>
+                    <CardTitle className="text-center text-2xl font-bold">Reset Password</CardTitle>
                     <CardDescription className="text-center">
                         Enter your new password below
                     </CardDescription>
@@ -103,7 +102,7 @@ const ResetPassword = () => {
                         <div className="space-y-2">
                             <Label htmlFor="password">New Password</Label>
                             <div className="relative">
-                                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                <Lock className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
                                 <Input
                                     id="password"
                                     name="password"
@@ -111,7 +110,7 @@ const ResetPassword = () => {
                                     placeholder="••••••••"
                                     value={formData.password}
                                     onChange={handleChange}
-                                    className="pl-10 pr-10"
+                                    className="pr-10 pl-10"
                                     disabled={isLoading}
                                     required
                                 />
@@ -119,14 +118,14 @@ const ResetPassword = () => {
                                     type="button"
                                     variant="ghost"
                                     size="icon"
-                                    className="absolute right-1 top-1 h-8 w-8"
+                                    className="absolute top-1 right-1 h-8 w-8"
                                     onClick={() => setShowPassword(!showPassword)}
                                     disabled={isLoading}
                                 >
                                     {showPassword ? (
-                                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                        <EyeOff className="text-muted-foreground h-4 w-4" />
                                     ) : (
-                                        <Eye className="h-4 w-4 text-muted-foreground" />
+                                        <Eye className="text-muted-foreground h-4 w-4" />
                                     )}
                                     <span className="sr-only">
                                         {showPassword ? "Hide password" : "Show password"}
@@ -136,15 +135,20 @@ const ResetPassword = () => {
 
                             {/* Password Requirements */}
                             {showRequirements && (
-                                <div className="space-y-2 text-xs mt-3">
-                                    <p className="text-muted-foreground font-medium">Password must contain:</p>
+                                <div className="mt-3 space-y-2 text-xs">
+                                    <p className="text-muted-foreground font-medium">
+                                        Password must contain:
+                                    </p>
                                     <div className="space-y-1">
                                         <PasswordRequirement
                                             met={passwordChecks.minLength}
                                             text="At least 8 characters"
                                         />
                                         <PasswordRequirement
-                                            met={passwordChecks.hasUpperCase && passwordChecks.hasLowerCase}
+                                            met={
+                                                passwordChecks.hasUpperCase &&
+                                                passwordChecks.hasLowerCase
+                                            }
                                             text="Uppercase and lowercase letters"
                                         />
                                         <PasswordRequirement
@@ -163,7 +167,7 @@ const ResetPassword = () => {
                         <div className="space-y-2">
                             <Label htmlFor="confirmPassword">Confirm Password</Label>
                             <div className="relative">
-                                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                <Lock className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
                                 <Input
                                     id="confirmPassword"
                                     name="confirmPassword"
@@ -171,7 +175,7 @@ const ResetPassword = () => {
                                     placeholder="••••••••"
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
-                                    className="pl-10 pr-10"
+                                    className="pr-10 pl-10"
                                     disabled={isLoading}
                                     required
                                 />
@@ -179,14 +183,14 @@ const ResetPassword = () => {
                                     type="button"
                                     variant="ghost"
                                     size="icon"
-                                    className="absolute right-1 top-1 h-8 w-8"
+                                    className="absolute top-1 right-1 h-8 w-8"
                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                     disabled={isLoading}
                                 >
                                     {showConfirmPassword ? (
-                                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                        <EyeOff className="text-muted-foreground h-4 w-4" />
                                     ) : (
-                                        <Eye className="h-4 w-4 text-muted-foreground" />
+                                        <Eye className="text-muted-foreground h-4 w-4" />
                                     )}
                                     <span className="sr-only">
                                         {showConfirmPassword ? "Hide password" : "Show password"}
@@ -218,12 +222,10 @@ const ResetPassword = () => {
 // Helper component for password requirements
 const PasswordRequirement = ({ met, text }: { met: boolean; text: string }) => {
     return (
-        <div className={`flex items-center gap-2 ${met ? "text-green-600" : "text-muted-foreground"}`}>
-            {met ? (
-                <CheckCircle2 className="h-3 w-3" />
-            ) : (
-                <XCircle className="h-3 w-3" />
-            )}
+        <div
+            className={`flex items-center gap-2 ${met ? "text-green-600" : "text-muted-foreground"}`}
+        >
+            {met ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
             <span>{text}</span>
         </div>
     );

@@ -37,17 +37,17 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <nav className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
             <div className="flex h-16 items-center justify-between px-4 md:px-6 lg:px-8">
                 {/* Logo */}
-                <Link to="/" className="font-bold text-xl hover:text-primary transition-colors">
+                <Link to="/" className="hover:text-primary text-xl font-bold transition-colors">
                     My App
                 </Link>
 
                 {/* Desktop Navigation */}
-                <div className="hidden md:flex items-center gap-4">
+                <div className="hidden items-center gap-4 md:flex">
                     {loading ? (
-                        <span className="text-sm text-muted-foreground">Loading...</span>
+                        <span className="text-muted-foreground text-sm">Loading...</span>
                     ) : user ? (
                         <>
                             <Button variant="ghost" asChild>
@@ -61,7 +61,10 @@ const Navbar = () => {
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                                    <Button
+                                        variant="ghost"
+                                        className="relative h-10 w-10 rounded-full"
+                                    >
                                         <Avatar className="h-10 w-10">
                                             <AvatarFallback className="bg-primary text-primary-foreground">
                                                 {getInitials(user.email)}
@@ -72,8 +75,10 @@ const Navbar = () => {
                                 <DropdownMenuContent className="w-56" align="end" forceMount>
                                     <DropdownMenuLabel className="font-normal">
                                         <div className="flex flex-col space-y-1">
-                                            <p className="text-sm font-medium leading-none">Account</p>
-                                            <p className="text-xs leading-none text-muted-foreground">
+                                            <p className="text-sm leading-none font-medium">
+                                                Account
+                                            </p>
+                                            <p className="text-muted-foreground text-xs leading-none">
                                                 {user.email}
                                             </p>
                                         </div>
@@ -92,7 +97,10 @@ const Navbar = () => {
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
+                                    <DropdownMenuItem
+                                        onClick={handleLogout}
+                                        className="cursor-pointer text-red-600"
+                                    >
                                         <LogOut className="mr-2 h-4 w-4" />
                                         <span>Logout</span>
                                     </DropdownMenuItem>
@@ -113,7 +121,7 @@ const Navbar = () => {
                 </div>
 
                 {/* Mobile Navigation */}
-                <div className="flex md:hidden items-center gap-2">
+                <div className="flex items-center gap-2 md:hidden">
                     <ModeToggle />
                     <Sheet open={isOpen} onOpenChange={setIsOpen}>
                         <SheetTrigger asChild>
@@ -128,10 +136,12 @@ const Navbar = () => {
 
                             <div className="flex flex-col gap-4">
                                 {loading ? (
-                                    <span className="text-sm text-muted-foreground">Loading...</span>
+                                    <span className="text-muted-foreground text-sm">
+                                        Loading...
+                                    </span>
                                 ) : user ? (
                                     <div className="px-4">
-                                        <div className="flex items-center gap-3 pb-4 border-b">
+                                        <div className="flex items-center gap-3 border-b pb-4">
                                             <Avatar className="h-12 w-12">
                                                 <AvatarFallback className="bg-primary text-primary-foreground">
                                                     {getInitials(user.email)}
@@ -139,43 +149,60 @@ const Navbar = () => {
                                             </Avatar>
                                             <div className="flex flex-col">
                                                 <span className="text-sm font-medium">Account</span>
-                                                <span className="text-xs text-muted-foreground">
+                                                <span className="text-muted-foreground text-xs">
                                                     {user.email}
                                                 </span>
                                             </div>
                                         </div>
 
-
-                                        <div className="w-full"><Button variant="ghost" asChild className="justify-start w-full mt-4" onClick={() => setIsOpen(false)}>
-                                            <Link to="/dashboard">
-                                                <LayoutDashboard className="mr-2 h-4 w-4" />
-                                                Dashboard
-                                            </Link>
-                                        </Button>
+                                        <div className="w-full">
+                                            <Button
+                                                variant="ghost"
+                                                asChild
+                                                className="mt-4 w-full justify-start"
+                                                onClick={() => setIsOpen(false)}
+                                            >
+                                                <Link to="/dashboard">
+                                                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                                                    Dashboard
+                                                </Link>
+                                            </Button>
                                         </div>
 
-                                        <div className="w-full"><Button variant="ghost" asChild className="justify-start w-full" onClick={() => setIsOpen(false)}>
-                                            <Link to="/settings">
-                                                <Settings className="mr-2 h-4 w-4" />
-                                                Settings
-                                            </Link>
-                                        </Button>
+                                        <div className="w-full">
+                                            <Button
+                                                variant="ghost"
+                                                asChild
+                                                className="w-full justify-start"
+                                                onClick={() => setIsOpen(false)}
+                                            >
+                                                <Link to="/settings">
+                                                    <Settings className="mr-2 h-4 w-4" />
+                                                    Settings
+                                                </Link>
+                                            </Button>
                                         </div>
 
-                                        <div className="w-full"><Button
-                                            variant="destructive"
-                                            className="justify-start w-full mt-4"
-                                            onClick={handleLogout}
-                                        >
-                                            <LogOut className="mr-2 h-4 w-4" />
-                                            Logout
-                                        </Button>
+                                        <div className="w-full">
+                                            <Button
+                                                variant="destructive"
+                                                className="mt-4 w-full justify-start"
+                                                onClick={handleLogout}
+                                            >
+                                                <LogOut className="mr-2 h-4 w-4" />
+                                                Logout
+                                            </Button>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="px-4">
                                         <div>
-                                            <Button variant="ghost" asChild className="justify-start w-full" onClick={() => setIsOpen(false)}>
+                                            <Button
+                                                variant="ghost"
+                                                asChild
+                                                className="w-full justify-start"
+                                                onClick={() => setIsOpen(false)}
+                                            >
                                                 <Link to="/login">
                                                     <UserIcon className="mr-2 h-4 w-4" />
                                                     Login
@@ -183,7 +210,11 @@ const Navbar = () => {
                                             </Button>
                                         </div>
                                         <div className="mt-4">
-                                            <Button asChild className="w-full" onClick={() => setIsOpen(false)}>
+                                            <Button
+                                                asChild
+                                                className="w-full"
+                                                onClick={() => setIsOpen(false)}
+                                            >
                                                 <Link to="/register">Register</Link>
                                             </Button>
                                         </div>

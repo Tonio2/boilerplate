@@ -11,12 +11,14 @@ All API errors are automatically processed and displayed to users with friendly 
 **Location:** `client/src/shared/utils/errorHandler.ts`
 
 **Key Functions:**
+
 - `parseError(error)` - Parses axios errors into structured format
 - `getUserMessage(error)` - Returns user-friendly error message
 - `isRetryableError(error)` - Determines if error should trigger retry
 - `isAuthError(error)` - Checks if error is authentication related
 
 **Error Codes:**
+
 ```typescript
 enum ErrorCode {
     NETWORK_ERROR           // No connection
@@ -40,6 +42,7 @@ enum ErrorCode {
 All requests automatically timeout after **30 seconds** to prevent hanging.
 
 **Configuration:**
+
 ```typescript
 const API = axios.create({
     timeout: 30000, // 30 seconds
@@ -47,6 +50,7 @@ const API = axios.create({
 ```
 
 **Timeout errors:**
+
 - Automatically detected
 - Trigger retry logic
 - Display user-friendly message
@@ -58,6 +62,7 @@ Failed requests are automatically retried for transient errors.
 **Location:** `client/src/shared/utils/retry.ts`
 
 **Configuration:**
+
 ```typescript
 {
     maxRetries: 3,
@@ -67,6 +72,7 @@ Failed requests are automatically retried for transient errors.
 ```
 
 **Retry Logic:**
+
 - **Attempt 1:** Wait ~1 second
 - **Attempt 2:** Wait ~2 seconds
 - **Attempt 3:** Wait ~4 seconds
@@ -74,6 +80,7 @@ Failed requests are automatically retried for transient errors.
 - **Jitter:** Random 0-1s added to prevent thundering herd
 
 **Retryable Errors:**
+
 - Network errors (no connection)
 - Timeout errors
 - Server errors (500, 502, 503, 504)
@@ -81,6 +88,7 @@ Failed requests are automatically retried for transient errors.
 - Request timeout (408)
 
 **Non-Retryable Errors:**
+
 - Authentication errors (401, 403)
 - Validation errors (400, 422)
 - Not found (404)
@@ -92,13 +100,13 @@ Generic error codes are mapped to helpful messages.
 
 **Examples:**
 
-| Error Code | User Message |
-|------------|-------------|
-| `NETWORK_ERROR` | "Unable to connect to the server. Please check your internet connection." |
-| `TIMEOUT_ERROR` | "Request timed out. Please try again." |
-| `UNAUTHORIZED` | "Invalid credentials. Please check your email and password." |
-| `VALIDATION_ERROR` | "Please check your input and try again." |
-| `INTERNAL_SERVER_ERROR` | "Something went wrong on our end. Please try again later." |
+| Error Code              | User Message                                                              |
+| ----------------------- | ------------------------------------------------------------------------- |
+| `NETWORK_ERROR`         | "Unable to connect to the server. Please check your internet connection." |
+| `TIMEOUT_ERROR`         | "Request timed out. Please try again."                                    |
+| `UNAUTHORIZED`          | "Invalid credentials. Please check your email and password."              |
+| `VALIDATION_ERROR`      | "Please check your input and try again."                                  |
+| `INTERNAL_SERVER_ERROR` | "Something went wrong on our end. Please try again later."                |
 
 ## How It Works
 
@@ -151,10 +159,10 @@ Generic error codes are mapped to helpful messages.
 All API calls automatically use error handling:
 
 ```typescript
-import API from '@shared/services/api';
+import API from "@shared/services/api";
 
 // Error handling is automatic!
-const response = await API.get('/users');
+const response = await API.get("/users");
 // ✅ Automatically retries on failure
 // ✅ Shows user-friendly error toast
 // ✅ Handles token refresh
@@ -166,19 +174,19 @@ Override default behavior when needed:
 
 ```typescript
 try {
-    const response = await API.post('/auth/login', credentials);
-    showToast('Login successful!', 'success');
+    const response = await API.post("/auth/login", credentials);
+    showToast("Login successful!", "success");
 } catch (error) {
     // Error already shown by interceptor
     // Add custom logic if needed
-    console.error('Login failed', error);
+    console.error("Login failed", error);
 }
 ```
 
 ### Disable Retry for Specific Request
 
 ```typescript
-const response = await API.get('/data', {
+const response = await API.get("/data", {
     // Add custom flag to skip retry
     // (Note: requires custom implementation)
 });
@@ -202,8 +210,8 @@ Edit `client/src/shared/utils/retry.ts`:
 
 ```typescript
 const DEFAULT_RETRY_CONFIG: RetryConfig = {
-    maxRetries: 5,      // Increase to 5 retries
-    retryDelay: 2000,   // Start with 2 second delay
+    maxRetries: 5, // Increase to 5 retries
+    retryDelay: 2000, // Start with 2 second delay
     retryableStatuses: [408, 429, 500, 502, 503, 504],
 };
 ```
@@ -214,7 +222,7 @@ Edit `client/src/shared/utils/errorHandler.ts`:
 
 ```typescript
 const ERROR_MESSAGES: Record<ErrorCode, string> = {
-    [ErrorCode.NETWORK_ERROR]: 'Your custom message here',
+    [ErrorCode.NETWORK_ERROR]: "Your custom message here",
     // ...
 };
 ```
@@ -224,6 +232,7 @@ const ERROR_MESSAGES: Record<ErrorCode, string> = {
 ### Console Logs
 
 Retry attempts are logged:
+
 ```
 Retrying request (attempt 1/3) after 1234ms
 Request failed after 3 retries: <error message>
@@ -254,17 +263,20 @@ All errors are parsed to this format:
 ## Testing
 
 ### Simulate Network Error
+
 ```typescript
 // Chrome DevTools → Network → Offline
 ```
 
 ### Simulate Timeout
+
 ```typescript
 // Chrome DevTools → Network → Slow 3G
 // Or reduce timeout to 1000ms temporarily
 ```
 
 ### Simulate Server Error
+
 ```typescript
 // Backend: throw ApiError.internal('Test error');
 ```
