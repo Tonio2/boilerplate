@@ -57,9 +57,9 @@
   },
 
   // File nesting
-  "explorer.fileNesting.enabled": true,
-  "explorer.fileNesting.patterns": {
-    "*.ts": "${capture}.test.ts, ${capture}.spec.ts",
-    "*.tsx": "${capture}.test.tsx, ${capture}.spec.tsx, ${capture}.module.css"
-  }
+  // "explorer.fileNesting.enabled": true,
+  // "explorer.fileNesting.patterns": {
+  //   "*.ts": "${capture}.test.ts, ${capture}.spec.ts",
+  //   "*.tsx": "${capture}.test.tsx, ${capture}.spec.tsx, ${capture}.module.css"
+  // }
 }
