@@ -9,7 +9,7 @@ cmds = [
   'echo "Installing client dependencies..."',
   'cd client && npm ci',
   'echo "Installing server dependencies..."',
-  'cd ../server && npm ci'
+  'cd server && npm ci'
 ]
 
 [phases.build]
@@ -17,7 +17,7 @@ cmds = [
   'echo "Building client (React + Vite)..."',
   'cd client && npm run build',
   'echo "Building server (TypeScript)..."',
-  'cd ../server && npm run build',
+  'cd server && npm run build',
   'echo "Build complete!"',
   'echo "Client built to: client/dist"',
   'echo "Server built to: server/dist"'
