@@ -1,18 +1,19 @@
-import dotenv from 'dotenv';
-import path from 'path';
+import dotenv from "dotenv";
+import path from "path";
 
 // Load environment variables from root .env file (single source of truth)
-dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 // PostgreSQL configuration (from root .env, used by Docker Compose)
-const POSTGRES_USER = process.env.POSTGRES_USER || 'postgres';
-const POSTGRES_PASSWORD = process.env.POSTGRES_PASSWORD || 'postgres';
-const POSTGRES_DB = process.env.POSTGRES_DB || 'boilerplate';
-const POSTGRES_PORT = process.env.POSTGRES_PORT || '5432';
-const POSTGRES_HOST = process.env.POSTGRES_HOST || 'localhost';
+const POSTGRES_USER = process.env.POSTGRES_USER || "postgres";
+const POSTGRES_PASSWORD = process.env.POSTGRES_PASSWORD || "postgres";
+const POSTGRES_DB = process.env.POSTGRES_DB || "boilerplate";
+const POSTGRES_PORT = process.env.POSTGRES_PORT || "5432";
+const POSTGRES_HOST = process.env.POSTGRES_HOST || "localhost";
 
 // Construct DATABASE_URL from PostgreSQL variables
-const DATABASE_URL = process.env.DATABASE_URL ||
+const DATABASE_URL =
+    process.env.DATABASE_URL ||
     `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}`;
 
 // Application configuration
@@ -24,16 +25,16 @@ const GMAIL_USER = process.env.GMAIL_USER!;
 const GMAIL_PWD = process.env.GMAIL_PWD!;
 
 // Optional
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 5000;
 const NODE_ENV = process.env.NODE_ENV || "development";
 
 const requiredVars = [
-    'JWT_ACCESS_SECRET',
-    'JWT_REFRESH_SECRET',
-    'CLIENT_URL',
-    'JWT_EMAIL_SECRET',
-    'GMAIL_USER',
-    'GMAIL_PWD',
+    "JWT_ACCESS_SECRET",
+    "JWT_REFRESH_SECRET",
+    "CLIENT_URL",
+    "JWT_EMAIL_SECRET",
+    "GMAIL_USER",
+    "GMAIL_PWD",
 ];
 
 requiredVars.forEach((varName) => {
@@ -58,4 +59,4 @@ export default {
     POSTGRES_DB,
     POSTGRES_PORT,
     POSTGRES_HOST,
-}
+};
