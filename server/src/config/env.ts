@@ -21,8 +21,9 @@ const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET!;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
 const CLIENT_URL = process.env.CLIENT_URL!;
 const JWT_EMAIL_SECRET = process.env.JWT_EMAIL_SECRET!;
-const GMAIL_USER = process.env.GMAIL_USER!;
-const GMAIL_PWD = process.env.GMAIL_PWD!;
+
+// Email configuration (Resend)
+const RESEND_API_KEY = process.env.RESEND_API_KEY!;
 
 // Optional
 const PORT = Number(process.env.PORT) || 5000;
@@ -33,8 +34,7 @@ const requiredVars = [
     "JWT_REFRESH_SECRET",
     "CLIENT_URL",
     "JWT_EMAIL_SECRET",
-    "GMAIL_USER",
-    "GMAIL_PWD",
+    "RESEND_API_KEY",
 ];
 
 requiredVars.forEach((varName) => {
@@ -49,8 +49,7 @@ export default {
     CLIENT_URL,
     JWT_EMAIL_SECRET,
     DATABASE_URL,
-    GMAIL_USER,
-    GMAIL_PWD,
+    RESEND_API_KEY,
     PORT,
     NODE_ENV,
     // Export postgres config for reference if needed

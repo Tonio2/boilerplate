@@ -2,18 +2,20 @@ import nodemailer from 'nodemailer';
 
 import env from '@config/env'
 
-// Configure the SMTP transporter
+// Configure the SMTP transporter for Resend
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.resend.com',
+    port: 465,
+    secure: true,
     auth: {
-        user: env.GMAIL_USER,
-        pass: env.GMAIL_PWD,
+        user: 'resend',
+        pass: env.RESEND_API_KEY,
     },
 });
 
 export const sendEmail = async (to: string, subject: string, html: string) => {
     const mailOptions = {
-        from: 'labalette.antoine@gmail.com',
+        from: 'onboarding@resend.dev', // Use Resend's default test domain or replace with your verified domain
         to,
         subject,
         html
