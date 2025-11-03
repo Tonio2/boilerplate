@@ -29,8 +29,8 @@
         "helmet": "^8.0.0",
         "joi": "^17.13.3",
         "jsonwebtoken": "^9.0.2",
-        "nodemailer": "^6.9.16",
         "pg": "^8.16.3",
+        "resend": "^6.4.0",
         "winston": "^3.17.0"
     },
     "devDependencies": {

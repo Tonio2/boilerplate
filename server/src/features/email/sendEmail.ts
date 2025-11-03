@@ -1,31 +1,29 @@
-import nodemailer from 'nodemailer';
+import env from "@config/env";
+import { Resend } from "resend";
 
-import env from '@config/env'
-
-// Configure the SMTP transporter for Resend
-const transporter = nodemailer.createTransport({
-    host: 'smtp.resend.com',
-    port: 465,
-    secure: true,
-    auth: {
-        user: 'resend',
-        pass: env.RESEND_API_KEY,
-    },
-});
+// Initialize Resend client (uses HTTP API, not SMTP!)
+const resend = new Resend(env.RESEND_API_KEY);
 
 export const sendEmail = async (to: string, subject: string, html: string) => {
-    const mailOptions = {
-        from: 'onboarding@resend.dev', // Use Resend's default test domain or replace with your verified domain
-        to,
-        subject,
-        html
-    };
-
-    if (env.NODE_ENV === 'development') {
-        console.log('Email sent (dev mode):', mailOptions);
-        return;
+    // In development, just log
+    if (env.NODE_ENV === "development") {
+        console.log("Email sent (dev mode):", { to, subject });
+        return { success: true, id: "dev-mock-id" };
     }
 
-    const info = await transporter.sendMail(mailOptions);
-    return info;
+    try {
+        // Resend API call (HTTP-based, no SMTP ports!)
+        const data = await resend.emails.send({
+            from: "onboarding@resend.dev", // Use your verified domain
+            to: to,
+            subject: subject,
+            html: html,
+        });
+
+        console.log("Email sent successfully:", data);
+        return data;
+    } catch (error) {
+        console.error("Email sending failed:", error);
+        throw error;
+    }
 };
