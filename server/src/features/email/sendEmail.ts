@@ -7,7 +7,7 @@ const resend = new Resend(env.RESEND_API_KEY);
 export const sendEmail = async (to: string, subject: string, html: string) => {
     // In development, just log
     if (env.NODE_ENV === "development") {
-        console.log("Email sent (dev mode):", { to, subject });
+        console.log("Email sent (dev mode):", { to, subject, html });
         return { success: true, id: "dev-mock-id" };
     }
 
