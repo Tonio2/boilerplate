@@ -124,3 +124,27 @@ docker exec -it boilerplate-postgres psql -U postgres -d boilerplate
 -   Database: boilerplate
 -   Username: postgres
 -   Password: postgres
+
+## Start a new project
+
+### Initialize the project
+
+```bash
+git clone https://github.com/Tonio2/boilerplate.git new_project
+cd new_project
+```
+
+### Update remotes
+
+```bash
+git remote rename origin upstream
+git remote add origin git@github.com:toi/mon-nouveau-projet.git
+git push -u origin main
+```
+
+### Update boiler
+
+```bash
+git fetch upstream
+git merge upstream/main
+```
