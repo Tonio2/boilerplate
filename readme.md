@@ -8,10 +8,10 @@ For more detailed documentation, please refer to the [prd](./docs/prd.md).
 
 ## Prerequisites
 
-- Node.js (v14 or higher)
-- npm (v6 or higher) or yarn
-- Docker
-- Gmail account with its app password [Gmail Setup Guide for Nodemailer](.docs/gmail.md)
+-   Node.js (v14 or higher)
+-   npm (v6 or higher) or yarn
+-   Docker
+-   Gmail account with its app password [Gmail Setup Guide for Nodemailer](.docs/gmail.md)
 
 ## Installation
 
@@ -25,15 +25,7 @@ cd boilerplate
 2. Create environment variable files:
 
 ```sh
-# Docker env variables
-cp .env.example .env
-
-# Server environment variables
-cd ../server
-cp .env.example .env
-
-# Client environment variables
-cd ../client
+# Gloabl env variables
 cp .env.example .env
 ```
 
@@ -61,7 +53,6 @@ docker compose up -d
 cd server
 npm run db:push
 ```
-
 
 ## Running the Project
 
@@ -112,20 +103,24 @@ npm run db:studio
 ### Accessing the Database
 
 **Via Drizzle Studio:**
+
 ```bash
 cd server
 npm run db:studio
 ```
+
 Opens at `https://local.drizzle.studio`
 
 **Via psql CLI:**
+
 ```bash
 docker exec -it boilerplate-postgres psql -U postgres -d boilerplate
 ```
 
 **Via any PostgreSQL client:**
-- Host: localhost
-- Port: 5432
-- Database: boilerplate
-- Username: postgres
-- Password: postgres
+
+-   Host: localhost
+-   Port: 5432
+-   Database: boilerplate
+-   Username: postgres
+-   Password: postgres
