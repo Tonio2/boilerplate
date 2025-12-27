@@ -28,11 +28,11 @@
         "express-async-handler": "^1.2.0",
         "express-rate-limit": "^7.5.0",
         "helmet": "^8.0.0",
-        "joi": "^17.13.3",
         "jsonwebtoken": "^9.0.2",
         "pg": "^8.16.3",
         "resend": "^6.4.0",
-        "winston": "^3.17.0"
+        "winston": "^3.17.0",
+        "zod": "^3.25.76"
     },
     "devDependencies": {
         "@types/bcryptjs": "^2.4.6",

@@ -11,9 +11,9 @@ import { AuthenticatedRequest, DecodedToken } from "./auth.type";
  * Middleware d'authentification
  * Vérifie la présence et la validité du JWT
  */
-export const authenticate = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const authenticate = (req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
     // Extract token from httpOnly cookie (prioritized for security)
-    const token = req.cookies?.accessToken;
+    const token = req.cookies?.accessToken as string | undefined;
 
     if (!token) {
         throw ApiError.unauthorized("Authentication required. Please provide a valid token.");
@@ -37,7 +37,7 @@ export const authenticate = (req: AuthenticatedRequest, res: Response, next: Nex
  * router.get('/staff', authenticate, authorize('admin', 'moderator'), staffController);
  */
 export const authorize = (...allowedRoles: string[]) => {
-    return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    return (req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
         if (!req.user) {
             throw ApiError.unauthorized("Authentication required");
         }
@@ -59,11 +59,11 @@ export const authorize = (...allowedRoles: string[]) => {
  */
 export const optionalAuthenticate = (
     req: AuthenticatedRequest,
-    res: Response,
+    _res: Response,
     next: NextFunction
 ) => {
     // Extract token from httpOnly cookie
-    const token = req.cookies?.accessToken;
+    const token = req.cookies?.accessToken as string | undefined;
 
     if (!token) {
         // No token = no error, just continue
@@ -73,7 +73,7 @@ export const optionalAuthenticate = (
     try {
         const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as DecodedToken;
         req.user = decoded;
-    } catch (error) {
+    } catch {
         // In case of error, simply ignore (invalid/expired token)
         // User will be treated as unauthenticated
     }

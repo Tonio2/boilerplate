@@ -1,5 +1,6 @@
 import { Request } from "express";
 
+// Decoded JWT token structure
 export interface DecodedToken {
     id: string;
     role: string;
@@ -8,7 +9,7 @@ export interface DecodedToken {
     exp?: number;
 }
 
-// Étendre l'interface Request pour inclure user
+// Extended Request interface for authenticated routes
 export interface AuthenticatedRequest extends Request {
     user?: DecodedToken;
 }

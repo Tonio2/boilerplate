@@ -10,11 +10,11 @@ import { ApiError } from "./apiError";
  * Extrait les erreurs de validation depuis différents types d'erreurs
  */
 function extractValidationErrors(err: any): any[] {
-    // Erreurs Joi
-    if (err.details && Array.isArray(err.details)) {
-        return err.details.map((detail: any) => ({
-            field: detail.path.join("."),
-            message: detail.message.replace(/['"]/g, ""),
+    // Erreurs Zod
+    if (err.name === "ZodError" && err.issues) {
+        return err.issues.map((issue: any) => ({
+            field: issue.path.join("."),
+            message: issue.message,
         }));
     }
 
@@ -38,8 +38,8 @@ function normalizeError(err: Error): ApiError {
         return err;
     }
 
-    // Erreurs de validation (Joi)
-    if (err.name === "ValidationError" && (err as any).isJoi) {
+    // Erreurs de validation (Zod)
+    if (err.name === "ZodError") {
         const errors = extractValidationErrors(err);
         return ApiError.badRequest("Validation failed", errors);
     }

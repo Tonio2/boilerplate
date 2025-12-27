@@ -3,7 +3,6 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { and, eq, gt } from "drizzle-orm";
 import { Request, Response } from "express";
-import Joi from "joi";
 import jwt from "jsonwebtoken";
 
 import { db } from "@config/db";
@@ -14,6 +13,15 @@ import { ApiError } from "@features/errors";
 import { logger } from "@features/logger";
 
 import { refreshTokens, users } from "./auth.schema";
+import { AuthenticatedRequest, DecodedToken } from "./auth.type";
+import {
+    deleteAccountSchema,
+    forgotPasswordSchema,
+    loginSchema,
+    registerSchema,
+    resetPasswordSchema,
+    verifyEmailSchema,
+} from "./auth.validation";
 
 const createTokens = (userId: string, role: string, isEmailVerified: boolean) => {
     const accessToken = jwt.sign({ id: userId, role, isEmailVerified }, env.JWT_ACCESS_SECRET, {
@@ -25,27 +33,11 @@ const createTokens = (userId: string, role: string, isEmailVerified: boolean) =>
     return { accessToken, refreshToken };
 };
 
-const passwordPattern = Joi.string()
-    .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*])(?=.{8,})"))
-    .message(
-        "Password must contain at least 8 characters, one uppercase, one lowercase, one number and one special character"
-    );
-
 // ============================================
 // REGISTER
 // ============================================
 export const register = async (req: Request, res: Response) => {
-    const schema = Joi.object({
-        email: Joi.string().email().required(),
-        password: passwordPattern.required(),
-    });
-
-    const { error } = schema.validate(req.body);
-    if (error) {
-        throw ApiError.badRequest("Validation failed", error.details);
-    }
-
-    const { email, password } = req.body;
+    const { email, password } = registerSchema.parse(req.body);
 
     // Check if user already exists
     const existingUser = await db.query.users.findFirst({
@@ -92,17 +84,7 @@ export const register = async (req: Request, res: Response) => {
 // LOGIN
 // ============================================
 export const login = async (req: Request, res: Response) => {
-    const schema = Joi.object({
-        email: Joi.string().email().required(),
-        password: Joi.string().required(),
-    });
-
-    const { error } = schema.validate(req.body);
-    if (error) {
-        throw ApiError.badRequest("Validation failed", error.details);
-    }
-
-    const { email, password } = req.body;
+    const { email, password } = loginSchema.parse(req.body);
 
     // Find user
     const user = await db.query.users.findFirst({
@@ -186,7 +168,7 @@ export const refresh = async (req: Request, res: Response) => {
     }
 
     // Verify JWT first (security)
-    const decoded: any = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
+    const decoded = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET) as DecodedToken;
 
     // Verify token exists in DB
     const hashedRefreshToken = crypto.createHash("sha256").update(refreshToken).digest("hex");
@@ -250,9 +232,9 @@ export const refresh = async (req: Request, res: Response) => {
 // ============================================
 // GET CURRENT USER
 // ============================================
-export const me = async (req: any, res: Response) => {
+export const me = async (req: AuthenticatedRequest, res: Response) => {
     const user = await db.query.users.findFirst({
-        where: eq(users.id, req.user.id),
+        where: eq(users.id, req.user!.id),
     });
 
     if (!user) {
@@ -274,16 +256,7 @@ export const me = async (req: any, res: Response) => {
 // FORGOT PASSWORD
 // ============================================
 export const forgotPassword = async (req: Request, res: Response) => {
-    const schema = Joi.object({
-        email: Joi.string().email().required(),
-    });
-
-    const { error } = schema.validate(req.body);
-    if (error) {
-        throw ApiError.badRequest("Validation failed", error.details);
-    }
-
-    const { email } = req.body;
+    const { email } = forgotPasswordSchema.parse(req.body);
 
     const user = await db.query.users.findFirst({
         where: eq(users.email, email),
@@ -346,17 +319,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 // RESET PASSWORD
 // ============================================
 export const resetPassword = async (req: Request, res: Response) => {
-    const schema = Joi.object({
-        password: passwordPattern.required(),
-        token: Joi.string().required(),
-    });
-
-    const { error } = schema.validate(req.body);
-    if (error) {
-        throw ApiError.badRequest("Validation failed", error.details);
-    }
-
-    const { password, token } = req.body;
+    const { password, token } = resetPasswordSchema.parse(req.body);
 
     // Hash token to compare with DB
     const resetTokenHash = crypto.createHash("sha256").update(token).digest("hex");
@@ -397,21 +360,12 @@ export const resetPassword = async (req: Request, res: Response) => {
 // VERIFY EMAIL
 // ============================================
 export const verifyEmail = async (req: Request, res: Response) => {
-    const schema = Joi.object({
-        token: Joi.string().required(),
-    });
-
-    const { error } = schema.validate(req.body);
-    if (error) {
-        throw ApiError.badRequest("Validation failed", error.details);
-    }
-
-    const { token } = req.body;
+    const { token } = verifyEmailSchema.parse(req.body);
 
     // Verify JWT
-    let decoded: any;
+    let decoded: { userId: string };
     try {
-        decoded = jwt.verify(token, env.JWT_EMAIL_SECRET);
+        decoded = jwt.verify(token, env.JWT_EMAIL_SECRET) as { userId: string };
     } catch (jwtError) {
         throw ApiError.badRequest("Invalid or expired verification token");
     }
@@ -441,9 +395,9 @@ export const verifyEmail = async (req: Request, res: Response) => {
 // ============================================
 // RESEND VERIFICATION EMAIL
 // ============================================
-export const resendVerificationEmail = async (req: any, res: Response) => {
+export const resendVerificationEmail = async (req: AuthenticatedRequest, res: Response) => {
     const user = await db.query.users.findFirst({
-        where: eq(users.id, req.user.id),
+        where: eq(users.id, req.user!.id),
     });
 
     if (!user) {
@@ -480,10 +434,10 @@ export const resendVerificationEmail = async (req: any, res: Response) => {
 // ============================================
 // EXPORT USER DATA
 // ============================================
-export const exportUserData = async (req: any, res: Response) => {
+export const exportUserData = async (req: AuthenticatedRequest, res: Response) => {
     // Find user with all their data
     const user = await db.query.users.findFirst({
-        where: eq(users.id, req.user.id),
+        where: eq(users.id, req.user!.id),
     });
 
     if (!user) {
@@ -515,22 +469,12 @@ export const exportUserData = async (req: any, res: Response) => {
 // ============================================
 // DELETE ACCOUNT
 // ============================================
-export const deleteAccount = async (req: any, res: Response) => {
-    const schema = Joi.object({
-        password: Joi.string().required(),
-        confirmDeletion: Joi.boolean().valid(true).required(),
-    });
-
-    const { error } = schema.validate(req.body);
-    if (error) {
-        throw ApiError.badRequest("Validation failed", error.details);
-    }
-
-    const { password } = req.body;
+export const deleteAccount = async (req: AuthenticatedRequest, res: Response) => {
+    const { password } = deleteAccountSchema.parse(req.body);
 
     // Find user
     const user = await db.query.users.findFirst({
-        where: eq(users.id, req.user.id),
+        where: eq(users.id, req.user!.id),
     });
 
     if (!user) {
