@@ -1,6 +1,7 @@
+import path from "path";
+
 import dotenv from "dotenv";
 import { defineConfig } from "drizzle-kit";
-import path from "path";
 
 // Load .env from root directory
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
@@ -14,6 +15,6 @@ export default defineConfig({
     out: "./drizzle",
     dialect: "postgresql",
     dbCredentials: {
-        url: DATABASE_URL!,
+        url: DATABASE_URL,
     },
 });

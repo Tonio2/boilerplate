@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { ZodError } from "zod";
 
 import env from "@config/env";
 
@@ -9,20 +10,26 @@ import { ApiError } from "./apiError";
 /**
  * Extrait les erreurs de validation depuis différents types d'erreurs
  */
-function extractValidationErrors(err: any): any[] {
+function extractValidationErrors(err: unknown): Array<{ field: string; message: string }> {
     // Erreurs Zod
-    if (err.name === "ZodError" && err.issues) {
-        return err.issues.map((issue: any) => ({
+    if (err instanceof ZodError) {
+        return err.issues.map((issue) => ({
             field: issue.path.join("."),
             message: issue.message,
         }));
     }
 
     // Erreurs Mongoose
-    if (err.errors) {
-        return Object.keys(err.errors).map((key) => ({
+    if (
+        typeof err === "object" &&
+        err !== null &&
+        "errors" in err &&
+        typeof err.errors === "object"
+    ) {
+        const errors = err.errors as Record<string, { message: string }>;
+        return Object.keys(errors).map((key) => ({
             field: key,
-            message: err.errors[key].message,
+            message: errors[key].message,
         }));
     }
 
@@ -39,7 +46,7 @@ function normalizeError(err: Error): ApiError {
     }
 
     // Erreurs de validation (Zod)
-    if (err.name === "ZodError") {
+    if (err instanceof ZodError) {
         const errors = extractValidationErrors(err);
         return ApiError.badRequest("Validation failed", errors);
     }
@@ -51,8 +58,17 @@ function normalizeError(err: Error): ApiError {
     }
 
     // Erreur de duplicate key MongoDB
-    if (err.name === "MongoServerError" && (err as any).code === 11000) {
-        const field = Object.keys((err as any).keyPattern || {})[0];
+    if (
+        err.name === "MongoServerError" &&
+        typeof err === "object" &&
+        "code" in err &&
+        err.code === 11000
+    ) {
+        const keyPattern =
+            "keyPattern" in err && typeof err.keyPattern === "object" && err.keyPattern !== null
+                ? err.keyPattern
+                : {};
+        const field = Object.keys(keyPattern)[0];
         return ApiError.conflict(field ? `${field} already exists` : "Resource already exists");
     }
 
@@ -77,7 +93,7 @@ function normalizeError(err: Error): ApiError {
 /**
  * Middleware de gestion centralisée des erreurs
  */
-export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
+export const errorHandler = (err: Error, req: Request, res: Response, _next: NextFunction) => {
     // Normaliser l'erreur
     const apiError = normalizeError(err);
 
@@ -89,7 +105,7 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
         method: req.method,
         ip: req.ip,
         userAgent: req.get("user-agent"),
-        userId: (req as any).user?.id,
+        userId: (req as { user?: { id: string } }).user?.id,
         ...(apiError.errors && { validationErrors: apiError.errors }),
     };
 
@@ -105,7 +121,12 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
     }
 
     // Construire la réponse
-    const response: any = {
+    const response: {
+        success: boolean;
+        message: string;
+        errors?: unknown[];
+        stack?: string;
+    } = {
         success: false,
         message: apiError.message,
     };
@@ -128,6 +149,6 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
  * Middleware pour gérer les routes non trouvées
  * À placer AVANT errorHandler dans index.ts
  */
-export const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
+export const notFoundHandler = (req: Request, _res: Response, _next: NextFunction) => {
     throw ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`);
 };

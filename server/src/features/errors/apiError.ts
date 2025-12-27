@@ -1,9 +1,9 @@
 export class ApiError extends Error {
     public readonly statusCode: number;
     public readonly isOperational: boolean;
-    public readonly errors?: any[];
+    public readonly errors?: unknown[];
 
-    constructor(statusCode: number, message: string, isOperational = true, errors?: any[]) {
+    constructor(statusCode: number, message: string, isOperational = true, errors?: unknown[]) {
         super(message);
         this.statusCode = statusCode;
         this.isOperational = isOperational;
@@ -15,7 +15,7 @@ export class ApiError extends Error {
     }
 
     // Factory methods pour les erreurs communes
-    static badRequest(message: string, errors?: any[]) {
+    static badRequest(message: string, errors?: unknown[]) {
         return new ApiError(400, message, true, errors);
     }
 

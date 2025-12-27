@@ -139,7 +139,7 @@ export const login = async (req: Request, res: Response) => {
 // LOGOUT
 // ============================================
 export const logout = async (req: Request, res: Response) => {
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies.refreshToken as string | undefined;
 
     if (refreshToken) {
         const hashedRefreshToken = crypto.createHash("sha256").update(refreshToken).digest("hex");
@@ -161,7 +161,7 @@ export const logout = async (req: Request, res: Response) => {
 // REFRESH TOKEN
 // ============================================
 export const refresh = async (req: Request, res: Response) => {
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies.refreshToken as string | undefined;
 
     if (!refreshToken) {
         throw ApiError.unauthorized("Refresh token required");
@@ -296,7 +296,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
              <p>This link will expire in 15 minutes.</p>
              <p>If you didn't request this, please ignore this email.</p>`
         );
-    } catch (emailError) {
+    } catch {
         // Rollback if email fails
         await db
             .update(users)
@@ -366,7 +366,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
     let decoded: { userId: string };
     try {
         decoded = jwt.verify(token, env.JWT_EMAIL_SECRET) as { userId: string };
-    } catch (jwtError) {
+    } catch {
         throw ApiError.badRequest("Invalid or expired verification token");
     }
 
@@ -421,7 +421,7 @@ export const resendVerificationEmail = async (req: AuthenticatedRequest, res: Re
             `<p>Verify your email by clicking <a href="${verificationURL}">here</a>.</p>
              <p>This link will expire in 1 hour.</p>`
         );
-    } catch (emailError) {
+    } catch {
         throw ApiError.internal("Failed to send verification email. Please try again later.");
     }
 
