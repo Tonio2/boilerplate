@@ -37,11 +37,11 @@ This guide explains how to configure Resend email service for your authenticatio
 2. Click **Create API Key**
 3. Give it a descriptive name like "Production Auth Boilerplate" or "Development"
 4. Select the appropriate permission:
-   - **Sending access** - Recommended for production
-   - **Full access** - Only if you need additional permissions
+    - **Sending access** - Recommended for production
+    - **Full access** - Only if you need additional permissions
 5. Click **Create**
 6. **Copy the API key immediately** - you won't be able to see it again!
-   - Format: `re_xxxxxxxxxxxxxxxxxxxxxxxxxx`
+    - Format: `re_xxxxxxxxxxxxxxxxxxxxxxxxxx`
 
 ---
 
@@ -79,14 +79,15 @@ If you verified your domain, update the `from` address in `server/src/features/e
 
 ```typescript
 const mailOptions = {
-    from: 'noreply@yourdomain.com', // Replace with your verified domain
+    from: "noreply@yourdomain.com", // Replace with your verified domain
     to,
     subject,
-    html
+    html,
 };
 ```
 
 **Common "from" addresses:**
+
 - `noreply@yourdomain.com` - For transactional emails
 - `hello@yourdomain.com` - For welcoming emails
 - `support@yourdomain.com` - For support-related emails
@@ -116,14 +117,17 @@ cd server && npm run dev
 ### Email not being sent
 
 **Check your .env file:**
+
 - Ensure `RESEND_API_KEY` is set correctly
 - Verify there are no extra spaces or quotes
 
 **Check your NODE_ENV:**
+
 - In development mode, emails are only logged to console
 - Set `NODE_ENV=production` to actually send emails
 
 **Check Resend dashboard:**
+
 - Go to [Resend Logs](https://resend.com/emails) to see email delivery status
 - Check for any error messages
 
@@ -132,16 +136,19 @@ cd server && npm run dev
 **Error:** `Error: The 'from' email address is not verified`
 
 **Solution:**
+
 - Use Resend's test domain: `onboarding@resend.dev`
 - Or verify your custom domain following step 4 above
 
 ### Free tier limits reached
 
 **Free tier limits:**
+
 - 3,000 emails/month
 - 100 emails/day
 
 **Solution:**
+
 - Monitor your usage in the [Resend dashboard](https://resend.com/overview)
 - Upgrade to a paid plan if needed ($20/month for 50,000 emails)
 
@@ -149,15 +156,15 @@ cd server && npm run dev
 
 ## Resend vs Gmail Comparison
 
-| Feature | Resend | Gmail |
-|---------|--------|-------|
-| **Free tier** | 3,000 emails/month (permanent) | ~500 emails/day (not designed for apps) |
-| **Setup complexity** | Simple API key | Requires 2FA + app password |
-| **Production ready** | ✅ Yes | ❌ Not recommended |
-| **Deliverability** | Excellent | Good (but Gmail may block) |
-| **Custom domains** | ✅ Supported | ❌ Not supported |
-| **Email tracking** | ✅ Dashboard with logs | ❌ No tracking |
-| **Paid plans** | $20/month for 50k emails | Not available |
+| Feature              | Resend                         | Gmail                                   |
+| -------------------- | ------------------------------ | --------------------------------------- |
+| **Free tier**        | 3,000 emails/month (permanent) | ~500 emails/day (not designed for apps) |
+| **Setup complexity** | Simple API key                 | Requires 2FA + app password             |
+| **Production ready** | ✅ Yes                         | ❌ Not recommended                      |
+| **Deliverability**   | Excellent                      | Good (but Gmail may block)              |
+| **Custom domains**   | ✅ Supported                   | ❌ Not supported                        |
+| **Email tracking**   | ✅ Dashboard with logs         | ❌ No tracking                          |
+| **Paid plans**       | $20/month for 50k emails       | Not available                           |
 
 ---
 
@@ -184,6 +191,7 @@ RESEND_API_KEY=re_prod_xxxxxxxxxx
 ### 3. Implement Email Queues (Future Enhancement)
 
 For high-volume applications, consider using a queue system:
+
 - Bull (Redis-based queue)
 - AWS SQS
 - RabbitMQ
@@ -204,6 +212,7 @@ This prevents email sending from blocking API responses.
 ## Support
 
 If you encounter issues:
+
 1. Check the [Resend status page](https://resend.instatus.com/)
 2. Review [Resend documentation](https://resend.com/docs)
 3. Contact Resend support via their dashboard

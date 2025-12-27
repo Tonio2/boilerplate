@@ -1,3 +1,7 @@
+import { Eye, EyeOff, Loader2, Lock, Mail, UserPlus } from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -9,11 +13,9 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
 import API from "@shared/services/api";
 import { showToast } from "@shared/services/toast";
-import { Eye, EyeOff, Loader2, Lock, Mail, UserPlus } from "lucide-react";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 
 const Register = () => {
     const navigate = useNavigate();

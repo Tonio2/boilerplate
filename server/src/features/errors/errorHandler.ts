@@ -1,10 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from "express";
 
-import { logger } from '@features/logger';
+import env from "@config/env";
 
-import env from '@config/env';
+import { logger } from "@features/logger";
 
-import { ApiError } from './apiError';
+import { ApiError } from "./apiError";
 
 /**
  * Extrait les erreurs de validation depuis différents types d'erreurs
@@ -13,8 +13,8 @@ function extractValidationErrors(err: any): any[] {
     // Erreurs Joi
     if (err.details && Array.isArray(err.details)) {
         return err.details.map((detail: any) => ({
-            field: detail.path.join('.'),
-            message: detail.message.replace(/['"]/g, ''),
+            field: detail.path.join("."),
+            message: detail.message.replace(/['"]/g, ""),
         }));
     }
 
@@ -39,54 +39,45 @@ function normalizeError(err: Error): ApiError {
     }
 
     // Erreurs de validation (Joi)
-    if (err.name === 'ValidationError' && (err as any).isJoi) {
+    if (err.name === "ValidationError" && (err as any).isJoi) {
         const errors = extractValidationErrors(err);
-        return ApiError.badRequest('Validation failed', errors);
+        return ApiError.badRequest("Validation failed", errors);
     }
 
     // Erreurs de validation Mongoose
-    if (err.name === 'ValidationError') {
+    if (err.name === "ValidationError") {
         const errors = extractValidationErrors(err);
-        return ApiError.badRequest('Validation failed', errors);
+        return ApiError.badRequest("Validation failed", errors);
     }
 
     // Erreur de duplicate key MongoDB
-    if (err.name === 'MongoServerError' && (err as any).code === 11000) {
+    if (err.name === "MongoServerError" && (err as any).code === 11000) {
         const field = Object.keys((err as any).keyPattern || {})[0];
-        return ApiError.conflict(
-            field ? `${field} already exists` : 'Resource already exists'
-        );
+        return ApiError.conflict(field ? `${field} already exists` : "Resource already exists");
     }
 
     // Erreur de cast Mongoose (ObjectId invalide)
-    if (err.name === 'CastError') {
-        return ApiError.badRequest('Invalid ID format');
+    if (err.name === "CastError") {
+        return ApiError.badRequest("Invalid ID format");
     }
 
     // Erreurs JWT
-    if (err.name === 'JsonWebTokenError') {
-        return ApiError.unauthorized('Invalid token');
+    if (err.name === "JsonWebTokenError") {
+        return ApiError.unauthorized("Invalid token");
     }
 
-    if (err.name === 'TokenExpiredError') {
-        return ApiError.unauthorized('Token expired');
+    if (err.name === "TokenExpiredError") {
+        return ApiError.unauthorized("Token expired");
     }
 
     // Erreur inconnue = 500 Internal Server Error
-    return ApiError.internal(
-        env.NODE_ENV === 'production' ? 'Internal server error' : err.message
-    );
+    return ApiError.internal(env.NODE_ENV === "production" ? "Internal server error" : err.message);
 }
 
 /**
  * Middleware de gestion centralisée des erreurs
  */
-export const errorHandler = (
-    err: Error,
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
     // Normaliser l'erreur
     const apiError = normalizeError(err);
 
@@ -97,7 +88,7 @@ export const errorHandler = (
         route: req.originalUrl,
         method: req.method,
         ip: req.ip,
-        userAgent: req.get('user-agent'),
+        userAgent: req.get("user-agent"),
         userId: (req as any).user?.id,
         ...(apiError.errors && { validationErrors: apiError.errors }),
     };
@@ -125,7 +116,7 @@ export const errorHandler = (
     }
 
     // Ajouter la stack trace en développement
-    if (env.NODE_ENV === 'development') {
+    if (env.NODE_ENV === "development") {
         response.stack = apiError.stack;
     }
 

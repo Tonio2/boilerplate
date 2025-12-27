@@ -1,5 +1,6 @@
-import env from "@config/env";
 import { Resend } from "resend";
+
+import env from "@config/env";
 
 // Initialize Resend client (uses HTTP API, not SMTP!)
 const resend = new Resend(env.RESEND_API_KEY);

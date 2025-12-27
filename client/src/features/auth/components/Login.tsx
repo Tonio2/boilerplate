@@ -1,3 +1,7 @@
+import { Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
+import { useState } from "react";
+import { Link, Navigate } from "react-router-dom";
+
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -9,12 +13,11 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
 import { useAuth } from "@features/auth/hooks/useAuth";
+
 import API from "@shared/services/api";
 import { showToast } from "@shared/services/toast";
-import { Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
-import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
 
 const Login = () => {
     const { user, login } = useAuth();

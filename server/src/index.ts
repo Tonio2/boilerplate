@@ -1,16 +1,17 @@
+import path from "path";
+
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-import path from "path";
+
+import { pool } from "@config/db";
+import env from "@config/env";
 
 import { authRoutes } from "@features/auth";
 import { errorHandler, notFoundHandler } from "@features/errors";
 import { debugLogger, logger } from "@features/logger";
-
-import { pool } from "@config/db";
-import env from "@config/env";
 
 const app = express();
 
@@ -128,9 +129,7 @@ const startServer = async () => {
     await connectToDatabase();
 
     const server = app.listen(env.PORT, "0.0.0.0", () => {
-        logger.info(
-            `Server running on port ${env.PORT} in ${env.NODE_ENV} mode`
-        );
+        logger.info(`Server running on port ${env.PORT} in ${env.NODE_ENV} mode`);
     });
 
     // Graceful Shutdown
@@ -148,9 +147,7 @@ const startServer = async () => {
 
         // Force shutdown after 10 seconds
         setTimeout(() => {
-            logger.error(
-                "Could not close connections in time, forcing shutdown"
-            );
+            logger.error("Could not close connections in time, forcing shutdown");
             process.exit(1);
         }, 10000);
     };

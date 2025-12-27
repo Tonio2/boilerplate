@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+
 import API from "@shared/services/api";
 import { User } from "@shared/types/user";
 

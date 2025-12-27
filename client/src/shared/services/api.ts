@@ -1,14 +1,16 @@
 import axios, { AxiosError } from "axios";
+
 import env from "@config/env";
+
 import { getUserMessage, isAuthError, parseError } from "@shared/utils/errorHandler";
-import {
-    calculateRetryDelay,
-    shouldRetryRequest,
-    getRetryCount,
+import DEFAULT_RETRY_CONFIG, {
     attachRetryConfig,
+    calculateRetryDelay,
+    getRetryCount,
+    shouldRetryRequest,
     sleep,
 } from "@shared/utils/retry";
-import DEFAULT_RETRY_CONFIG from "@shared/utils/retry";
+
 import { showToast } from "./toast";
 
 /**

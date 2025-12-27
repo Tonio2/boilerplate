@@ -1,41 +1,37 @@
-import jwt from 'jsonwebtoken';
-import { Response, NextFunction } from 'express';
+import { NextFunction, Response } from "express";
+import jwt from "jsonwebtoken";
 
-import { ApiError } from '@features/errors';
+import env from "@config/env";
 
-import env from '@config/env';
+import { ApiError } from "@features/errors";
 
-import { DecodedToken, AuthenticatedRequest } from './auth.type';
+import { AuthenticatedRequest, DecodedToken } from "./auth.type";
 
 /**
  * Middleware d'authentification
  * Vérifie la présence et la validité du JWT
  */
-export const authenticate = (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  // Extract token from httpOnly cookie (prioritized for security)
-  const token = req.cookies?.accessToken;
+export const authenticate = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    // Extract token from httpOnly cookie (prioritized for security)
+    const token = req.cookies?.accessToken;
 
-  if (!token) {
-    throw ApiError.unauthorized('Authentication required. Please provide a valid token.');
-  }
+    if (!token) {
+        throw ApiError.unauthorized("Authentication required. Please provide a valid token.");
+    }
 
-  try {
-    // Verify JWT
-    const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as DecodedToken;
+    try {
+        // Verify JWT
+        const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as DecodedToken;
 
-    // Attach user information to request
-    req.user = decoded;
+        // Attach user information to request
+        req.user = decoded;
 
-    next();
-  } catch (error) {
-    // JWT errors will be automatically handled by errorHandler
-    // which converts them to ApiError.unauthorized
-    throw error;
-  }
+        next();
+    } catch (error) {
+        // JWT errors will be automatically handled by errorHandler
+        // which converts them to ApiError.unauthorized
+        throw error;
+    }
 };
 
 /**
@@ -47,20 +43,20 @@ export const authenticate = (
  * router.get('/staff', authenticate, authorize('admin', 'moderator'), staffController);
  */
 export const authorize = (...allowedRoles: string[]) => {
-  return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    if (!req.user) {
-      throw ApiError.unauthorized('Authentication required');
-    }
+    return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+        if (!req.user) {
+            throw ApiError.unauthorized("Authentication required");
+        }
 
-    // Check if user's role is in the allowed roles
-    if (!allowedRoles.includes(req.user.role)) {
-      throw ApiError.forbidden(
-        `Access denied. Required role(s): ${allowedRoles.join(', ')}. Your role: ${req.user.role}`
-      );
-    }
+        // Check if user's role is in the allowed roles
+        if (!allowedRoles.includes(req.user.role)) {
+            throw ApiError.forbidden(
+                `Access denied. Required role(s): ${allowedRoles.join(", ")}. Your role: ${req.user.role}`
+            );
+        }
 
-    next();
-  };
+        next();
+    };
 };
 
 /**
@@ -68,27 +64,27 @@ export const authorize = (...allowedRoles: string[]) => {
  * Utile pour les routes publiques qui peuvent avoir un comportement différent si authentifié
  */
 export const optionalAuthenticate = (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
 ) => {
-  // Extract token from httpOnly cookie
-  const token = req.cookies?.accessToken;
+    // Extract token from httpOnly cookie
+    const token = req.cookies?.accessToken;
 
-  if (!token) {
-    // No token = no error, just continue
-    return next();
-  }
+    if (!token) {
+        // No token = no error, just continue
+        return next();
+    }
 
-  try {
-    const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as DecodedToken;
-    req.user = decoded;
-  } catch (error) {
-    // In case of error, simply ignore (invalid/expired token)
-    // User will be treated as unauthenticated
-  }
+    try {
+        const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as DecodedToken;
+        req.user = decoded;
+    } catch (error) {
+        // In case of error, simply ignore (invalid/expired token)
+        // User will be treated as unauthenticated
+    }
 
-  next();
+    next();
 };
 
 /**
@@ -99,19 +95,19 @@ export const optionalAuthenticate = (
  * router.get('/protected', authenticate, requireEmailVerified, protectedController);
  */
 export const requireEmailVerified = (
-  req: AuthenticatedRequest,
-  _res: Response,
-  next: NextFunction
+    req: AuthenticatedRequest,
+    _res: Response,
+    next: NextFunction
 ) => {
-  if (!req.user) {
-    throw ApiError.unauthorized('Authentication required');
-  }
+    if (!req.user) {
+        throw ApiError.unauthorized("Authentication required");
+    }
 
-  if (!req.user.isEmailVerified) {
-    throw ApiError.forbidden(
-      'Email verification required. Please verify your email address to access this resource.'
-    );
-  }
+    if (!req.user.isEmailVerified) {
+        throw ApiError.forbidden(
+            "Email verification required. Please verify your email address to access this resource."
+        );
+    }
 
-  next();
+    next();
 };

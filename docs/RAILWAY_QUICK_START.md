@@ -36,21 +36,21 @@ Open `server-index-changes.ts` and follow the instructions to:
 
 ```typescript
 // Add after your API routes, before app.listen()
-if (process.env.NODE_ENV === 'production') {
-  const isDev = process.env.NODE_ENV !== 'production';
-  const clientDistPath = path.resolve(
-    __dirname,
-    isDev ? '../../client/dist' : '../../../client/dist'
-  );
+if (process.env.NODE_ENV === "production") {
+    const isDev = process.env.NODE_ENV !== "production";
+    const clientDistPath = path.resolve(
+        __dirname,
+        isDev ? "../../client/dist" : "../../../client/dist"
+    );
 
-  app.use(express.static(clientDistPath));
+    app.use(express.static(clientDistPath));
 
-  app.get('*', (req, res) => {
-    if (req.path.startsWith('/api')) {
-      return res.status(404).json({ error: 'Not found' });
-    }
-    res.sendFile(path.join(clientDistPath, 'index.html'));
-  });
+    app.get("*", (req, res) => {
+        if (req.path.startsWith("/api")) {
+            return res.status(404).json({ error: "Not found" });
+        }
+        res.sendFile(path.join(clientDistPath, "index.html"));
+    });
 }
 ```
 
@@ -86,6 +86,7 @@ open http://localhost:5000
 ```
 
 ### Verify:
+
 - [ ] React app loads at http://localhost:5000
 - [ ] Health check works: http://localhost:5000/health
 - [ ] Static files load (check Network tab)

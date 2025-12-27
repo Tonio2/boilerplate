@@ -8,10 +8,10 @@ For more detailed documentation, please refer to the [prd](./docs/prd.md).
 
 ## Prerequisites
 
--   Node.js (v14 or higher)
--   npm (v6 or higher) or yarn
--   Docker
--   Gmail account with its app password [Gmail Setup Guide for Nodemailer](.docs/gmail.md)
+- Node.js (v14 or higher)
+- npm (v6 or higher) or yarn
+- Docker
+- Gmail account with its app password [Gmail Setup Guide for Nodemailer](.docs/gmail.md)
 
 ## Installation
 
@@ -119,11 +119,11 @@ docker exec -it boilerplate-postgres psql -U postgres -d boilerplate
 
 **Via any PostgreSQL client:**
 
--   Host: localhost
--   Port: 5432
--   Database: boilerplate
--   Username: postgres
--   Password: postgres
+- Host: localhost
+- Port: 5432
+- Database: boilerplate
+- Username: postgres
+- Password: postgres
 
 ## Start a new project
 

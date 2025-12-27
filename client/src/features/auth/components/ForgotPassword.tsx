@@ -1,3 +1,7 @@
+import { ArrowLeft, Loader2, Mail, SendHorizontal } from "lucide-react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -9,11 +13,9 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
 import API from "@shared/services/api";
 import { showToast } from "@shared/services/toast";
-import { ArrowLeft, Loader2, Mail, SendHorizontal } from "lucide-react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState<string>("");

@@ -1,31 +1,28 @@
+import { Suspense, lazy } from "react";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+
 import { AuthProvider, ProtectedRoute, useAuth } from "@features/auth";
+
 import Footer from "@shared/components/Footer";
 import LoadingSpinner from "@shared/components/LoadingSpinner";
 import Navbar from "@shared/components/Navbar";
-import { Suspense, lazy } from "react";
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
 // Lazy-loaded components
 const Home = lazy(() => import("@features/home").then((m) => ({ default: m.Home })));
 const Login = lazy(() => import("@features/auth").then((m) => ({ default: m.Login })));
 const Register = lazy(() => import("@features/auth").then((m) => ({ default: m.Register })));
-const VerifyEmail = lazy(() =>
-    import("@features/auth").then((m) => ({ default: m.VerifyEmail }))
-);
+const VerifyEmail = lazy(() => import("@features/auth").then((m) => ({ default: m.VerifyEmail })));
 const ForgotPassword = lazy(() =>
     import("@features/auth").then((m) => ({ default: m.ForgotPassword }))
 );
 const ResetPassword = lazy(() =>
     import("@features/auth").then((m) => ({ default: m.ResetPassword }))
 );
-const Dashboard = lazy(() =>
-    import("@features/dashboard").then((m) => ({ default: m.Dashboard }))
-);
-const Settings = lazy(() =>
-    import("@/features/settings").then((m) => ({ default: m.Settings }))
-);
+const Dashboard = lazy(() => import("@features/dashboard").then((m) => ({ default: m.Dashboard })));
+const Settings = lazy(() => import("@/features/settings").then((m) => ({ default: m.Settings })));
 const PrivacyPolicy = lazy(() =>
     import("@features/legal").then((m) => ({ default: m.PrivacyPolicy }))
 );

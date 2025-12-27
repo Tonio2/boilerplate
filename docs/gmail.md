@@ -26,7 +26,7 @@ This guide explains how to configure Gmail to work with Nodemailer using App Pas
 1. Go to your [Google Account Security page](https://myaccount.google.com/security)
 2. Under "Signing in to Google", click on **2-Step Verification**
 3. Scroll down to the bottom and click on **App passwords**
-   - If you don't see this option, make sure 2FA is fully enabled and wait a few minutes
+    - If you don't see this option, make sure 2FA is fully enabled and wait a few minutes
 4. You may need to sign in again
 5. In the "Select app" dropdown, choose **Mail**
 6. In the "Select device" dropdown, choose **Other (Custom name)**

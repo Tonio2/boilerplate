@@ -1,3 +1,6 @@
+import { ArrowLeft, FileQuestion, Home, Search } from "lucide-react";
+import { Link } from "react-router-dom";
+
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -7,8 +10,6 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { ArrowLeft, FileQuestion, Home, Search } from "lucide-react";
-import { Link } from "react-router-dom";
 
 const NotFound = () => {
     return (

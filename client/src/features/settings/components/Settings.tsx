@@ -1,3 +1,18 @@
+import {
+    AlertTriangle,
+    CheckCircle2,
+    Download,
+    Loader2,
+    Mail,
+    Send,
+    Shield,
+    Trash2,
+    User as UserIcon,
+    XCircle,
+} from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
     AlertDialog,
@@ -17,23 +32,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+
 import { useAuth } from "@features/auth/hooks/useAuth";
+
 import API from "@shared/services/api";
 import { showToast } from "@shared/services/toast";
-import {
-    AlertTriangle,
-    CheckCircle2,
-    Download,
-    Loader2,
-    Mail,
-    Send,
-    Shield,
-    Trash2,
-    User as UserIcon,
-    XCircle,
-} from "lucide-react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 const Settings = () => {
     const { user, logout } = useAuth();

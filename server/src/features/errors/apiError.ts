@@ -3,12 +3,7 @@ export class ApiError extends Error {
     public readonly isOperational: boolean;
     public readonly errors?: any[];
 
-    constructor(
-        statusCode: number,
-        message: string,
-        isOperational = true,
-        errors?: any[]
-    ) {
+    constructor(statusCode: number, message: string, isOperational = true, errors?: any[]) {
         super(message);
         this.statusCode = statusCode;
         this.isOperational = isOperational;
@@ -24,15 +19,15 @@ export class ApiError extends Error {
         return new ApiError(400, message, true, errors);
     }
 
-    static unauthorized(message = 'Unauthorized') {
+    static unauthorized(message = "Unauthorized") {
         return new ApiError(401, message);
     }
 
-    static forbidden(message = 'Forbidden') {
+    static forbidden(message = "Forbidden") {
         return new ApiError(403, message);
     }
 
-    static notFound(message = 'Resource not found') {
+    static notFound(message = "Resource not found") {
         return new ApiError(404, message);
     }
 
@@ -40,15 +35,15 @@ export class ApiError extends Error {
         return new ApiError(409, message);
     }
 
-    static tooManyRequests(message = 'Too many requests') {
+    static tooManyRequests(message = "Too many requests") {
         return new ApiError(429, message);
     }
 
-    static internal(message = 'Internal server error') {
+    static internal(message = "Internal server error") {
         return new ApiError(500, message, false);
     }
 
-    static serviceUnavailable(message = 'Service unavailable') {
+    static serviceUnavailable(message = "Service unavailable") {
         return new ApiError(503, message, false);
     }
 }

@@ -1,41 +1,32 @@
-import bcrypt from "bcryptjs";
 import crypto from "crypto";
+
+import bcrypt from "bcryptjs";
 import { and, eq, gt } from "drizzle-orm";
 import { Request, Response } from "express";
 import Joi from "joi";
 import jwt from "jsonwebtoken";
 
-import { sendEmail } from "@features/email";
-import { ApiError } from "@features/errors";
-
 import { db } from "@config/db";
 import env from "@config/env";
 
+import { sendEmail } from "@features/email";
+import { ApiError } from "@features/errors";
 import { logger } from "@features/logger";
+
 import { refreshTokens, users } from "./auth.schema";
 
-const createTokens = (
-    userId: string,
-    role: string,
-    isEmailVerified: boolean
-) => {
-    const accessToken = jwt.sign(
-        { id: userId, role, isEmailVerified },
-        env.JWT_ACCESS_SECRET!,
-        {
-            expiresIn: "15m",
-        }
-    );
-    const refreshToken = jwt.sign({ id: userId }, env.JWT_REFRESH_SECRET!, {
+const createTokens = (userId: string, role: string, isEmailVerified: boolean) => {
+    const accessToken = jwt.sign({ id: userId, role, isEmailVerified }, env.JWT_ACCESS_SECRET, {
+        expiresIn: "15m",
+    });
+    const refreshToken = jwt.sign({ id: userId }, env.JWT_REFRESH_SECRET, {
         expiresIn: "7d",
     });
     return { accessToken, refreshToken };
 };
 
 const passwordPattern = Joi.string()
-    .pattern(
-        new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*])(?=.{8,})")
-    )
+    .pattern(new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*])(?=.{8,})"))
     .message(
         "Password must contain at least 8 characters, one uppercase, one lowercase, one number and one special character"
     );
@@ -77,7 +68,7 @@ export const register = async (req: Request, res: Response) => {
         .returning();
 
     // Send verification email
-    const token = jwt.sign({ userId: newUser.id }, env.JWT_EMAIL_SECRET!, {
+    const token = jwt.sign({ userId: newUser.id }, env.JWT_EMAIL_SECRET, {
         expiresIn: "1h",
     });
     const verificationURL = `${env.CLIENT_URL}/verify-email/${token}`;
@@ -93,8 +84,7 @@ export const register = async (req: Request, res: Response) => {
 
     res.status(201).json({
         success: true,
-        message:
-            "Registration successful. Please check your email to verify your account.",
+        message: "Registration successful. Please check your email to verify your account.",
     });
 };
 
@@ -120,9 +110,7 @@ export const login = async (req: Request, res: Response) => {
     });
 
     // Verify user AND password together to avoid timing attack
-    const isValidPassword = user
-        ? await bcrypt.compare(password, user.password)
-        : false;
+    const isValidPassword = user ? await bcrypt.compare(password, user.password) : false;
 
     if (!user || !isValidPassword) {
         // Generic message to prevent email enumeration
@@ -130,17 +118,10 @@ export const login = async (req: Request, res: Response) => {
     }
 
     // Create tokens
-    const { accessToken, refreshToken } = createTokens(
-        user.id,
-        user.role,
-        user.isEmailVerified
-    );
+    const { accessToken, refreshToken } = createTokens(user.id, user.role, user.isEmailVerified);
 
     // Store hashed refresh token in DB
-    const hashedRefreshToken = crypto
-        .createHash("sha256")
-        .update(refreshToken)
-        .digest("hex");
+    const hashedRefreshToken = crypto.createHash("sha256").update(refreshToken).digest("hex");
 
     await db.insert(refreshTokens).values({
         token: hashedRefreshToken,
@@ -179,14 +160,9 @@ export const logout = async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken;
 
     if (refreshToken) {
-        const hashedRefreshToken = crypto
-            .createHash("sha256")
-            .update(refreshToken)
-            .digest("hex");
+        const hashedRefreshToken = crypto.createHash("sha256").update(refreshToken).digest("hex");
 
-        await db
-            .delete(refreshTokens)
-            .where(eq(refreshTokens.token, hashedRefreshToken));
+        await db.delete(refreshTokens).where(eq(refreshTokens.token, hashedRefreshToken));
     }
 
     // Clear both cookies
@@ -212,17 +188,14 @@ export const refresh = async (req: Request, res: Response) => {
     // Verify JWT first (security)
     let decoded: any;
     try {
-        decoded = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET!);
+        decoded = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
     } catch (error) {
         // Error handler will handle this automatically
         throw error;
     }
 
     // Verify token exists in DB
-    const hashedRefreshToken = crypto
-        .createHash("sha256")
-        .update(refreshToken)
-        .digest("hex");
+    const hashedRefreshToken = crypto.createHash("sha256").update(refreshToken).digest("hex");
 
     const tokenDoc = await db.query.refreshTokens.findFirst({
         where: eq(refreshTokens.token, hashedRefreshToken),
@@ -233,9 +206,7 @@ export const refresh = async (req: Request, res: Response) => {
     }
 
     // Delete old token
-    await db
-        .delete(refreshTokens)
-        .where(eq(refreshTokens.token, hashedRefreshToken));
+    await db.delete(refreshTokens).where(eq(refreshTokens.token, hashedRefreshToken));
 
     // Fetch user to get current role (in case it changed)
     const user = await db.query.users.findFirst({
@@ -254,10 +225,7 @@ export const refresh = async (req: Request, res: Response) => {
     );
 
     // Store new refresh token
-    const hashedNewRefreshToken = crypto
-        .createHash("sha256")
-        .update(newRefreshToken)
-        .digest("hex");
+    const hashedNewRefreshToken = crypto.createHash("sha256").update(newRefreshToken).digest("hex");
 
     await db.insert(refreshTokens).values({
         token: hashedNewRefreshToken,
@@ -332,18 +300,14 @@ export const forgotPassword = async (req: Request, res: Response) => {
     if (!user) {
         res.status(200).json({
             success: true,
-            message:
-                "If an account exists with this email, a password reset link has been sent.",
+            message: "If an account exists with this email, a password reset link has been sent.",
         });
         return;
     }
 
     // Generate reset token
     const resetToken = crypto.randomBytes(32).toString("hex");
-    const resetTokenHash = crypto
-        .createHash("sha256")
-        .update(resetToken)
-        .digest("hex");
+    const resetTokenHash = crypto.createHash("sha256").update(resetToken).digest("hex");
 
     await db
         .update(users)
@@ -375,15 +339,12 @@ export const forgotPassword = async (req: Request, res: Response) => {
             })
             .where(eq(users.id, user.id));
 
-        throw ApiError.internal(
-            "Failed to send password reset email. Please try again later."
-        );
+        throw ApiError.internal("Failed to send password reset email. Please try again later.");
     }
 
     res.status(200).json({
         success: true,
-        message:
-            "If an account exists with this email, a password reset link has been sent.",
+        message: "If an account exists with this email, a password reset link has been sent.",
     });
 };
 
@@ -404,10 +365,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     const { password, token } = req.body;
 
     // Hash token to compare with DB
-    const resetTokenHash = crypto
-        .createHash("sha256")
-        .update(token)
-        .digest("hex");
+    const resetTokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
     // Find user with valid token
     const user = await db.query.users.findFirst({
@@ -437,8 +395,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 
     res.status(200).json({
         success: true,
-        message:
-            "Password reset successfully. You can now login with your new password.",
+        message: "Password reset successfully. You can now login with your new password.",
     });
 };
 
@@ -460,7 +417,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
     // Verify JWT
     let decoded: any;
     try {
-        decoded = jwt.verify(token, env.JWT_EMAIL_SECRET!);
+        decoded = jwt.verify(token, env.JWT_EMAIL_SECRET);
     } catch (jwtError) {
         throw ApiError.badRequest("Invalid or expired verification token");
     }
@@ -479,10 +436,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
     }
 
     // Verify email
-    await db
-        .update(users)
-        .set({ isEmailVerified: true })
-        .where(eq(users.id, user.id));
+    await db.update(users).set({ isEmailVerified: true }).where(eq(users.id, user.id));
 
     res.status(200).json({
         success: true,
@@ -507,7 +461,7 @@ export const resendVerificationEmail = async (req: any, res: Response) => {
     }
 
     // Generate new token
-    const token = jwt.sign({ userId: user.id }, env.JWT_EMAIL_SECRET!, {
+    const token = jwt.sign({ userId: user.id }, env.JWT_EMAIL_SECRET, {
         expiresIn: "1h",
     });
     const verificationURL = `${env.CLIENT_URL}/verify-email/${token}`;
@@ -520,15 +474,12 @@ export const resendVerificationEmail = async (req: any, res: Response) => {
              <p>This link will expire in 1 hour.</p>`
         );
     } catch (emailError) {
-        throw ApiError.internal(
-            "Failed to send verification email. Please try again later."
-        );
+        throw ApiError.internal("Failed to send verification email. Please try again later.");
     }
 
     res.status(200).json({
         success: true,
-        message:
-            "Verification email sent successfully. Please check your inbox.",
+        message: "Verification email sent successfully. Please check your inbox.",
     });
 };
 

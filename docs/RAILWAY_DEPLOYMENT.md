@@ -112,6 +112,7 @@ Open your browser and test:
 4. Watch the logs to see what's happening
 
 **Common first-time issues:**
+
 - ❌ Missing environment variables (expected)
 - ❌ Database connection failed (expected)
 - ⚠️ Build succeeded but app crashes (need env vars)
@@ -222,14 +223,14 @@ railway run npm run db:push --prefix server
 3. Go to "Settings" tab
 4. Scroll to "Deploy Lifecycle"
 5. Under "Start Command", temporarily change to:
-   ```
-   cd server && npm run db:migrate && node dist/index.js
-   ```
+    ```
+    cd server && npm run db:migrate && node dist/index.js
+    ```
 6. Redeploy
 7. After first successful deploy, change back to:
-   ```
-   cd server && node dist/index.js
-   ```
+    ```
+    cd server && node dist/index.js
+    ```
 
 **Warning:** Option 2 runs migrations on every deploy, which can be risky. Use Option 1 for production.
 
@@ -259,12 +260,14 @@ Check the deployment logs to confirm migrations ran:
 Open your Railway URL in a browser:
 
 **Basic Tests:**
+
 - ✅ https://your-app.railway.app - React app loads
 - ✅ https://your-app.railway.app/health - Health check returns OK
 - ✅ No console errors (F12 → Console)
 - ✅ Static files load (F12 → Network tab)
 
 **Feature Tests:**
+
 - ✅ Register a new user
 - ✅ Login works
 - ✅ JWT tokens are issued
@@ -280,6 +283,7 @@ Keep the deployment logs open to watch for errors:
 3. Watch real-time logs
 
 **Look for:**
+
 - ✅ "Server running on port XXXX"
 - ✅ "Database connected"
 - ❌ Any error messages
@@ -306,12 +310,12 @@ Keep the deployment logs open to watch for errors:
 
 1. Go to your domain registrar (Namecheap, GoDaddy, etc.)
 2. Add the CNAME record Railway provides:
-   ```
-   Type: CNAME
-   Name: app (or @ for root domain)
-   Value: <provided by Railway>
-   TTL: 3600
-   ```
+    ```
+    Type: CNAME
+    Name: app (or @ for root domain)
+    Value: <provided by Railway>
+    TTL: 3600
+    ```
 3. Save changes
 
 ### Step 4: Wait for Propagation
@@ -324,9 +328,9 @@ Keep the deployment logs open to watch for errors:
 
 1. Go back to Railway dashboard
 2. Update the `CLIENT_URL` variable to your custom domain:
-   ```
-   CLIENT_URL=https://yourdomain.com
-   ```
+    ```
+    CLIENT_URL=https://yourdomain.com
+    ```
 3. Redeploy
 
 ---
@@ -388,6 +392,7 @@ git push origin main
 **Error: "Cannot find module 'xyz'"**
 
 Solution:
+
 ```bash
 # Make sure package.json exists in both client/ and server/
 # Verify dependencies are listed correctly
@@ -398,6 +403,7 @@ cd ../server && npm ci
 **Error: "TypeScript compilation failed"**
 
 Solution:
+
 ```bash
 # Check tsconfig.json is correct
 # Verify all TypeScript files compile locally
@@ -409,6 +415,7 @@ cd server && npm run build
 **Error: "Application failed to respond"**
 
 Check logs for:
+
 ```
 ❌ DATABASE_URL not set
 ❌ JWT_ACCESS_SECRET not set
@@ -416,6 +423,7 @@ Check logs for:
 ```
 
 Solution:
+
 1. Verify all environment variables are set
 2. Check health check endpoint exists: `/health`
 3. Ensure server binds to `process.env.PORT` (Railway provides this)
@@ -425,6 +433,7 @@ Solution:
 **Error: 404 on JS/CSS files**
 
 Solution:
+
 1. Verify `client/dist` folder exists after build
 2. Check static file path in `server/src/index.ts` (see server-index-changes.ts)
 3. Make sure production mode is enabled: `NODE_ENV=production`
@@ -434,6 +443,7 @@ Solution:
 **Error: "Connection refused" or "timeout"**
 
 Solution:
+
 1. Verify PostgreSQL addon is running
 2. Check DATABASE_URL is set (Railway does this automatically)
 3. Run migrations: `railway run npm run db:migrate --prefix server`
@@ -443,6 +453,7 @@ Solution:
 **Error: "Access-Control-Allow-Origin"**
 
 Solution:
+
 1. Check `CLIENT_URL` matches your Railway domain
 2. Update CORS configuration in server to allow Railway domain
 3. For monolith (serving React from Express), you shouldn't have CORS issues
@@ -452,6 +463,7 @@ Solution:
 **Error: "Health check timeout"**
 
 Solution:
+
 1. Verify `/health` endpoint exists and responds quickly
 2. Check server is binding to correct port: `process.env.PORT`
 3. Ensure health check doesn't require authentication
@@ -463,23 +475,27 @@ Solution:
 ### Understanding Railway Pricing
 
 **Trial Period:**
+
 - $5 free credit when you sign up
 - No credit card required initially
 - Enough for 1-2 weeks of testing
 
 **Hobby Plan:**
+
 - $5/month subscription
 - Includes $5 usage credit
 - Pay-as-you-go beyond credit
 - Most small apps stay within $5 credit
 
 **Usage Costs:**
+
 ```
 RAM:  $0.000231 per GB-hour
 vCPU: $0.000463 per vCPU-hour
 ```
 
 **Example Monthly Costs:**
+
 ```
 Small App (512MB RAM, 0.5 vCPU, always running):
 RAM:  512MB × 730 hours × $0.000231 ≈ $0.09
@@ -513,6 +529,7 @@ When you're done testing:
 7. Click "Delete"
 
 **Result:**
+
 - ✅ All containers stopped immediately
 - ✅ Database deleted
 - ✅ URLs deactivated
@@ -522,6 +539,7 @@ When you're done testing:
 ### Monitoring Usage
 
 Check your usage:
+
 1. Railway dashboard → Your profile (top right)
 2. Click "Usage"
 3. See current billing period usage
@@ -551,6 +569,7 @@ Click the button above to deploy your own instance to Railway!
 ```
 
 **Benefits:**
+
 - ✅ One-click deployment for users
 - ✅ Railway auto-configures environment
 - ✅ Users pay for their own usage
@@ -570,6 +589,7 @@ Click the button above to deploy your own instance to Railway!
 ### Project Issues
 
 For issues specific to this boilerplate:
+
 - Check GitHub Issues
 - Review deployment logs
 - Test production build locally first
@@ -579,6 +599,7 @@ For issues specific to this boilerplate:
 ## Summary Checklist
 
 ### Pre-Deployment
+
 - [ ] Test production build locally
 - [ ] All environment variables documented
 - [ ] Health check endpoint exists
@@ -586,6 +607,7 @@ For issues specific to this boilerplate:
 - [ ] Git repository up to date
 
 ### Railway Setup
+
 - [ ] Railway account created
 - [ ] Project connected to GitHub
 - [ ] PostgreSQL database added
@@ -593,6 +615,7 @@ For issues specific to this boilerplate:
 - [ ] Initial deployment successful
 
 ### Post-Deployment
+
 - [ ] Database migrations run
 - [ ] Health check passing
 - [ ] React app loads correctly
@@ -601,6 +624,7 @@ For issues specific to this boilerplate:
 - [ ] Custom domain configured (if applicable)
 
 ### Cleanup (For Boilerplate Testing)
+
 - [ ] Deployment verified and documented
 - [ ] Screenshots taken
 - [ ] Railway project deleted

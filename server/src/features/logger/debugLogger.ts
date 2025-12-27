@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from "express";
 
 const debugLogger = (req: Request, res: Response, next: NextFunction) => {
     // Log the request
-    console.log('Request:', {
+    console.log("Request:", {
         method: req.method,
         url: req.originalUrl,
         // headers: req.headers,
@@ -13,7 +13,7 @@ const debugLogger = (req: Request, res: Response, next: NextFunction) => {
     const originalSend = res.send;
     res.send = function (body: any): Response {
         // Log the response
-        console.log('Response:', {
+        console.log("Response:", {
             status: res.statusCode,
             // headers: res.getHeaders(),
             body: body,

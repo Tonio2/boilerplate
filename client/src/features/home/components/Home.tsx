@@ -1,5 +1,3 @@
-import React from "react";
-
 const Home = () => (
     <div className="p-8">
         <h1 className="text-3xl font-bold">Welcome to My App</h1>
