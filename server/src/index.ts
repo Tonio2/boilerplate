@@ -139,10 +139,15 @@ const startServer = async () => {
         server.close(() => {
             logger.info("HTTP server closed");
 
-            pool.end().then(() => {
-                logger.info("PostgreSQL connection closed");
-                process.exit(0);
-            });
+            pool.end()
+                .then(() => {
+                    logger.info("PostgreSQL connection closed");
+                    process.exit(0);
+                })
+                .catch((err) => {
+                    logger.error("Error closing PostgreSQL connection:", err);
+                    process.exit(1);
+                });
         });
 
         // Force shutdown after 10 seconds
@@ -156,4 +161,7 @@ const startServer = async () => {
     process.on("SIGTERM", () => shutdown("SIGTERM"));
 };
 
-startServer();
+void startServer().catch((err) => {
+    logger.error("Failed to start server:", err);
+    process.exit(1);
+});

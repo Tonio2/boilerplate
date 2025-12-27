@@ -19,19 +19,13 @@ export const authenticate = (req: AuthenticatedRequest, res: Response, next: Nex
         throw ApiError.unauthorized("Authentication required. Please provide a valid token.");
     }
 
-    try {
-        // Verify JWT
-        const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as DecodedToken;
+    // Verify JWT
+    const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as DecodedToken;
 
-        // Attach user information to request
-        req.user = decoded;
+    // Attach user information to request
+    req.user = decoded;
 
-        next();
-    } catch (error) {
-        // JWT errors will be automatically handled by errorHandler
-        // which converts them to ApiError.unauthorized
-        throw error;
-    }
+    next();
 };
 
 /**

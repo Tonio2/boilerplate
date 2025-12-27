@@ -186,13 +186,7 @@ export const refresh = async (req: Request, res: Response) => {
     }
 
     // Verify JWT first (security)
-    let decoded: any;
-    try {
-        decoded = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
-    } catch (error) {
-        // Error handler will handle this automatically
-        throw error;
-    }
+    const decoded: any = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
 
     // Verify token exists in DB
     const hashedRefreshToken = crypto.createHash("sha256").update(refreshToken).digest("hex");
