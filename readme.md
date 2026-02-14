@@ -76,6 +76,16 @@ cd client
 npm start
 ```
 
+## Testing
+
+The server uses Vitest with a dedicated PostgreSQL container for integration tests.
+
+```sh
+docker compose up -d postgres-test   # Start the test database
+cd server && npm test                # Push schema + run tests
+cd server && npm run test:watch      # Watch mode
+```
+
 ## Push to prod
 
 # TODO

@@ -1,20 +1,12 @@
-import path from "path";
-
-import dotenv from "dotenv";
 import { defineConfig } from "drizzle-kit";
 
-// Load .env from root directory
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
-
-const DATABASE_URL =
-    process.env.DATABASE_URL ||
-    `postgresql://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT}/${process.env.POSTGRES_DB}`;
+import env from "./src/config/env";
 
 export default defineConfig({
     schema: "./src/features/auth/auth.schema.ts",
     out: "./drizzle",
     dialect: "postgresql",
     dbCredentials: {
-        url: DATABASE_URL,
+        url: env.DATABASE_URL,
     },
 });

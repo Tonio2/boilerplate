@@ -153,6 +153,16 @@ export default tseslint.config(
         },
     },
 
+    // Test files - relax strict typing rules (res.body is `any` in supertest)
+    {
+        files: ["**/__tests__/**/*.ts", "**/*.test.ts", "**/*.spec.ts"],
+        rules: {
+            "@typescript-eslint/no-unsafe-member-access": "off",
+            "@typescript-eslint/no-unsafe-assignment": "off",
+            "@typescript-eslint/no-unsafe-argument": "off",
+        },
+    },
+
     // Prettier must be last to override formatting rules
     prettier
 );

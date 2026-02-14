@@ -10,7 +10,9 @@
         "db:migrate": "drizzle-kit migrate",
         "db:push": "drizzle-kit push",
         "db:studio": "drizzle-kit studio",
-        "type-check": "tsc --noEmit"
+        "type-check": "tsc --noEmit",
+        "test": "TESTING=true npm run db:push -- --force && TESTING=true vitest run",
+        "test:watch": "TESTING=true npm run db:push -- --force && TESTING=true vitest"
     },
     "keywords": [],
     "author": "",
@@ -45,8 +47,11 @@
         "@types/node": "^22.10.5",
         "@types/nodemailer": "^6.4.17",
         "@types/pg": "^8.15.5",
+        "@types/supertest": "^6.0.3",
+        "supertest": "^7.2.2",
         "tsc-alias": "^1.8.16",
         "tsx": "^4.20.6",
-        "typescript": "^5.7.2"
+        "typescript": "^5.7.2",
+        "vitest": "^4.0.18"
     }
 }

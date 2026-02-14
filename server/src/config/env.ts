@@ -5,12 +5,17 @@ import dotenv from "dotenv";
 // Load environment variables from root .env file (single source of truth)
 dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
+// Determine if we're in testing mode
+const TESTING = process.env.TESTING === "true";
+
 // PostgreSQL configuration (from root .env, used by Docker Compose)
 const POSTGRES_USER = process.env.POSTGRES_USER || "postgres";
 const POSTGRES_PASSWORD = process.env.POSTGRES_PASSWORD || "postgres";
 const POSTGRES_DB = process.env.POSTGRES_DB || "boilerplate";
-const POSTGRES_PORT = process.env.POSTGRES_PORT || "5432";
 const POSTGRES_HOST = process.env.POSTGRES_HOST || "localhost";
+const POSTGRES_DEV_PORT = process.env.POSTGRES_PORT || "5432";
+const POSTGRES_TEST_PORT = process.env.POSTGRES_TEST_PORT || "5434";
+const POSTGRES_PORT = TESTING ? POSTGRES_TEST_PORT : POSTGRES_DEV_PORT;
 
 // Construct DATABASE_URL from PostgreSQL variables
 const DATABASE_URL =
@@ -53,6 +58,7 @@ export default {
     RESEND_API_KEY,
     PORT,
     NODE_ENV,
+    TESTING,
     // Export postgres config for reference if needed
     POSTGRES_USER,
     POSTGRES_PASSWORD,
